@@ -36,28 +36,28 @@ cd spotify-api-testing` <br>
      `start ./reports/Spotify-Test-Report.html`
 ## Testing
   **Summary:** <br>
-    - Total Requests<sup>13</sup>  
-    - Total Assertions<sup>99</sup>  
-    - Total Run Duration<sup>15s</sup>  
-    - Failures<sup>20</sup>  
-    - Average Response Time<sup>267ms</sup>  
+       - Total Requests<sup>13</sup>  
+       - Total Assertions<sup>99</sup>  
+       - Total Run Duration<sup>15s</sup>  
+       - Failures<sup>20</sup>  
+       - Average Response Time<sup>267ms</sup>  
   **Detailed Results:**
-    - User Profile<br>
-        1. GET /v1/me: <sup>80% pass rate.</sup><br>
-        2. GET /v1/me/following?type=artist: <sup>78% pass rate.</sup><br>
-    - Playlists<br>
-        1. GET /v1/me/playlists: <sup>75% pass rate.</sup><br>
-        2. POST /v1/users/{user_id}/playlists: <sup>88% pass rate.</sup><br>
-        3. GET /v1/playlists/{playlist_id}: <sup>100% pass rate.</sup><br>
-        4. PUT /v1/playlists/{playlist_id}: <sup>75% pass rate.</sup><br>
-    - Tracks<br>
-        1. GET /v1/me/tracks: <sup>71% pass rate.</sup><br>
-        2. PUT /v1/me/tracks: <sup>67% pass rate.</sup><br>
-        3. DELETE /v1/me/tracks: <sup>67% pass rate.</sup><br>
+       - User Profile<br>
+           1. GET /v1/me: <sup>80% pass rate.</sup><br>
+           2. GET /v1/me/following?type=artist: <sup>78% pass rate.</sup><br>
+       - Playlists<br>
+           1. GET /v1/me/playlists: <sup>75% pass rate.</sup><br>
+           2. POST /v1/users/{user_id}/playlists: <sup>88% pass rate.</sup><br>
+           3. GET /v1/playlists/{playlist_id}: <sup>100% pass rate.</sup><br>
+           4. PUT /v1/playlists/{playlist_id}: <sup>75% pass rate.</sup><br>
+       - Tracks<br>
+           1. GET /v1/me/tracks: <sup>71% pass rate.</sup><br>
+           2. PUT /v1/me/tracks: <sup>67% pass rate.</sup><br>
+           3. DELETE /v1/me/tracks: <sup>67% pass rate.</sup><br>
 1. Read_Current_User's_Profile
-   URL: [{{baseURL}}/me] (https://api.spotify.com/v1/me)<br>
+   URL: {{baseURL}}/me <br>
    Method: GET<br>
-   Pre-request Script: `NULL`
+   Pre-request Script: `NULL`  
    Post-request Script:<br>
    ```
     pm.test("Checked whether the response code is 200 or not!", function () {pm.response.to.have.status(200)})
