@@ -38,9 +38,9 @@ cd spotify-api-testing` <br>
   **Summary:** <br>
     - Total Requests<sup>13</sup>  
     - Total Assertions<sup>99</sup>  
-    - Total Run Duration<sup>15s</sup>
+    - Total Run Duration<sup>15s</sup>  
     - Failures<sup>20</sup>  
-    - Average Response Time<sup>267ms</sup>
+    - Average Response Time<sup>267ms</sup>  
   **Detailed Results:**
     - User Profile<br>
         1. GET /v1/me: <sup>80% pass rate.</sup><br>
