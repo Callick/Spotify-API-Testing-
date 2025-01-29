@@ -381,7 +381,7 @@ Before using this project, ensure the following:
 ## 6. Read_Specific_Playlist_Items
    - **Authorization:** Auth Type should set <ins>Bearer Token</ins> and Token <ins>{{accessToken}}</ins> <br>
    - **Request Body:** `NULL` <br>
-   - **URL:** [{{baseURL}}/playlists/{{Susmit KarmakerPL}}](https://api.spotify.com/v1/playlists/{{Susmit KarmakerPL}}) <br>
+   - **URL:** [{{baseURL}}/playlists/{{Susmit_KarmakerPL}}](https://api.spotify.com/v1/playlists/{{Susmit_KarmakerPL}}) <br>
    - **Method:** GET<br>
    - **Pre-request Script:** `NULL` <br>
    - **Post-request Script:** <br>
