@@ -57,66 +57,65 @@ cd spotify-api-testing` <br>
 1. Read_Current_User's_Profile
    URL: [{{baseURL}}/me] (https://api.spotify.com/v1/me)<br>
    Method: GET<br>
-   Pre-request Script:<br>
-   `NULL`
+   Pre-request Script: `NULL`
    Post-request Script:<br>
    ```
-   pm.test("Checked whether the response code is 200 or not!", function () {pm.response.to.have.status(200)})
-switch(pm.response.code){
+    pm.test("Checked whether the response code is 200 or not!", function () {pm.response.to.have.status(200)})
+    switch(pm.response.code){
 
-    case 200:
-        // To verify the reponse body
-        pm.test("Checked whether response body contains data or not!", function(){
-            pm.expect(pm.response.text()).to.not.be.empty
-        })
-        // To verify header authorization
-        pm.test("Checked whether response header contains authorization or not!", function () {
-            pm.response.to.have.header("Authorization")
-        });
-        // To verify response header
-        pm.test("Checked whether response header has expected Content-type or not!", function(){
-            pm.response.to.have.header("Content-Type", "application/json; charset=utf-8")
-        })
-        // To verify the spotify URL
-        pm.test("Checked whether response has valid URL of user-profile  or not!", function () {
-        // Parse the response body as JSON
-        var jsonData = pm.response.json();
-        
-        // Define the regex pattern for the expected Spotify URL format
-        var spotifyUrlPattern = /^https:\/\/open\.spotify\.com\/user\/.+$/;
-        
-        // Assert that the spotify URL matches the expected format
-        pm.expect(jsonData.external_urls.spotify).to.match(spotifyUrlPattern);
-    });
-        pm.test("Checked whether the response time is less than 0.2s or not!", function () {
-            pm.expect(pm.response.responseTime).to.be.below(200)
-        })
-        pm.test("Checked whether the response size is less than 3KB or not!", function(){
-            pm.expect(pm.response.responseSize).to.be.below(3072)
-        })
-        pm.environment.set("user_id", pm.response.json().id)
-        var user_name = pm.response.json().display_name
-        pm.test(`Successful to fetch details of ${user_name}'s Spotify Account.`)
-        var resTime = pm.response.responseTime / 1000
-        pm.test(`The response Time Was ${resTime} Seconds.`)
-        pm.environment.set("username", user_name)
+          case 200:
+              // To verify the reponse body
+              pm.test("Checked whether response body contains data or not!", function(){
+                  pm.expect(pm.response.text()).to.not.be.empty
+              })
+              // To verify header authorization
+              pm.test("Checked whether response header contains authorization or not!", function () {
+                  pm.response.to.have.header("Authorization")
+              });
+              // To verify response header
+              pm.test("Checked whether response header has expected Content-type or not!", function(){
+                  pm.response.to.have.header("Content-Type", "application/json; charset=utf-8")
+              })
+              // To verify the spotify URL
+              pm.test("Checked whether response has valid URL of user-profile  or not!", function () {
+              // Parse the response body as JSON
+              var jsonData = pm.response.json();
+              
+              // Define the regex pattern for the expected Spotify URL format
+              var spotifyUrlPattern = /^https:\/\/open\.spotify\.com\/user\/.+$/;
+              
+              // Assert that the spotify URL matches the expected format
+              pm.expect(jsonData.external_urls.spotify).to.match(spotifyUrlPattern);
+          });
+              pm.test("Checked whether the response time is less than 0.2s or not!", function () {
+                  pm.expect(pm.response.responseTime).to.be.below(200)
+              })
+              pm.test("Checked whether the response size is less than 3KB or not!", function(){
+                  pm.expect(pm.response.responseSize).to.be.below(3072)
+              })
+              pm.environment.set("user_id", pm.response.json().id)
+              var user_name = pm.response.json().display_name
+              pm.test(`Successful to fetch details of ${user_name}'s Spotify Account.`)
+              var resTime = pm.response.responseTime / 1000
+              pm.test(`The response Time Was ${resTime} Seconds.`)
+              pm.environment.set("username", user_name)
+      
+          break
+          // Below cases are as per Spotify API Document
+          case 401:
+              pm.test("The Access Token Has Expired.")
+          break
+          case 403:
+              pm.test("Server is refusing to fulfill your request.")
+          break
+          case 429:
+              pm.test("You've requested too many requests.")
+          break
+          default:
+              pm.test("Unsuccessful to fetch details of Spotify Account.")
+      
+      }```
 
-    break
-    // Below cases are as per Spotify API Document
-    case 401:
-        pm.test("The Access Token Has Expired.")
-    break
-    case 403:
-        pm.test("Server is refusing to fulfill your request.")
-    break
-    case 429:
-        pm.test("You've requested too many requests.")
-    break
-    default:
-        pm.test("Unsuccessful to fetch details of Spotify Account.")
-
-}
-```
 Response:<br>
 ```The code was 200. Request successful. The server has responded as required.```
 3. Read_Followed_Artists
