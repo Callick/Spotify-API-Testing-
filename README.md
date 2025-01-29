@@ -54,7 +54,7 @@ cd spotify-api-testing` <br>
            1. GET /v1/me/tracks: <sup>71% pass rate.</sup><br>
            2. PUT /v1/me/tracks: <sup>67% pass rate.</sup><br>
            3. DELETE /v1/me/tracks: <sup>67% pass rate.</sup><br>
-**1. Read_Current_User's_Profile**
+## 1. Read_Current_User's_Profile
    - **Authorization:** Auth Type should set <ins>Bearer Token</ins> and Token <ins>{{accessToken}}</ins> <br>
    - **URL:** [{{baseURL}}/me](https://api.spotify.com/v1/me) <br>
    - **Method:** GET<br>
@@ -117,14 +117,78 @@ cd spotify-api-testing` <br>
       
       }
 ```  
-**Response:** >The code was 200. Request successful. The server has responded as required. <br>
+**Response:**
+>The code was 200. Request successful. The server has responded as required. <br>
 
 **2. Read_Followed_Artists**
-   - **URL:** [{{baseURL}}/me](url) <br>
+   - **Authorization:** Auth Type should set <ins>Bearer Token</ins> and Token <ins>{{accessToken}}</ins> <br>
+   - **URL:** [{{baseURL}}/me/following?type=artist](https://api.spotify.com/v1/me//following?type=artist) <br>
    - **Method:** GET<br>
    - **Pre-request Script:** `NULL`  
    - **Post-request Script:** <br>
    ```
+           pm.test("Checked whether the response code is 200 or not!", function () {
+             pm.response.to.have.status(200)})
+                 switch(pm.response.code){
+                     case 200:
+                         // To verify the reponse body
+                         pm.test("Checked whether response body contains data or not!", function(){
+                             pm.expect(pm.response.text()).to.not.be.empty
+                         })
+                         // To verify response header
+                         pm.test("Checked whether response header has expected Content-type or not!", function(){
+                             pm.response.to.have.header("Content-Type", "application/json; charset=utf-8")
+                         })
+                         pm.test("Checked whether response time is less than 0.2s or not!", function () {
+                             pm.expect(pm.response.responseTime).to.be.below(200)
+                         })
+                         pm.test("Checked whether the response size is less than 3KB or not!", function(){
+                             pm.expect(pm.response.responseSize).to.be.below(3072)
+                         })
+                         pm.test("Successful To Fetch User's Info.")
+                         
+                         // STORE THE RESPONSE INTO VARIABLE
+                         var resBody = pm.response.json()
+                         
+                         // CATCH THE LENGTH OF ITEM ARRAY TO USE IN TEST-CASE
+                         var items = resBody.artists.items.length
+                         
+                         // GET THE USERNAME FROM ENVIRONMENT TO USE IN TEST-CASE
+                         var usern = pm.environment.get("username")
+                         
+                         // DECLARE TWO VARIABLES THAT WILL HELP TO FIND ARTIST WITH MAX FOLLOWERS
+                         let maxFollowers = 0
+                         let popular = ""
+                         
+                         // LOOP FOR THE EACH ITEMS TO FIND THE ARTIST WITH MAX FOLLOWERS
+                         resBody.artists.items.forEach(shorten => {
+                             if (shorten.followers.total > maxFollowers) {
+                                 maxFollowers = shorten.followers.total
+                                 popular = shorten.name
+                             }
+                         })
+                         pm.test(`Details From ${usern}'s Spotify With Following(${items}).`)
+                         pm.test(`The Most Popular Artist From User's Following is ${popular}.`)
+                         var resTime = pm.response.responseTime / 1000
+                         pm.test(`The Response Time Was ${resTime} Seconds.`)
+                 
+                     break
+                     // Below cases are as per Spotify API Document
+                     case 401:
+                         pm.test("The Access Token Has Expired.")
+                     break
+                     case 403:
+                         pm.test("Server is refusing to fulfill your request.")
+                     break
+                     case 429:
+                         pm.test("You've requested too many requests.")
+                     break
+                     default:
+                         pm.test("Unsuccessful to fetch details of Spotify Account.")
+                 }
+```
+**Response:**
+>The code was 200. Request successful. The server has responded as required. <br>
 4. Read_Current_User's_Playlists
 5. Create_Playlist
 6. Read_After_Create_Playlist_
