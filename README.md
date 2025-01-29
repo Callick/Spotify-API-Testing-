@@ -21,12 +21,16 @@ Before using this project, ensure the following:
   3. Newman and htmlextra installed globally:
      `npm install -g newman newman-reporter-htmlextra`
 ## Installation
- 1. Clone the repository:
-`git clone https://github.com/Callick/spotify-api-testing.git
-cd spotify-api-testing` <br>
- 2. Install Newman:
-`npm install -g newman` <br>
- 3. Set up your environment variables for Spotify API credentials.
+ **1. Clone the repository:**
+```
+    git clone https://github.com/Callick/spotify-api-testing.git
+    cd spotify-api-testing
+```
+ **2. Install Newman:**
+```
+    npm install -g newman
+```
+ **3. Set up your environment variables for Spotify API credentials.**
 ## Usage
  **Running the API Tests:**
    - Update the Postman environment file with your Spotify API credentials (Client ID, Client Secret, and access token).
@@ -56,11 +60,12 @@ cd spotify-api-testing` <br>
            3. DELETE /v1/me/tracks: <sup>67% pass rate.</sup><br>
 ## 1. Read_Current_User's_Profile
    - **Authorization:** Auth Type should set <ins>Bearer Token</ins> and Token <ins>{{accessToken}}</ins> <br>
+   - **Request Body:** `NULL` <br>
    - **URL:** [{{baseURL}}/me](https://api.spotify.com/v1/me) <br>
    - **Method:** GET<br>
    - **Pre-request Script:** `NULL`  
    - **Post-request Script:** <br>
-   ```
+```
     pm.test("Checked whether the response code is 200 or not!", function () {pm.response.to.have.status(200)})
     switch(pm.response.code){
 
@@ -122,11 +127,12 @@ cd spotify-api-testing` <br>
 
 ## 2. Read_Followed_Artists
    - **Authorization:** Auth Type should set <ins>Bearer Token</ins> and Token <ins>{{accessToken}}</ins> <br>
+   - **Request Body:** `NULL` <br>
    - **URL:** [{{baseURL}}/me/following?type=artist](https://api.spotify.com/v1/me//following?type=artist) <br>
    - **Method:** GET<br>
    - **Pre-request Script:** `NULL`  
    - **Post-request Script:** <br>
-   ```
+```
         pm.test("Checked whether the response code is 200 or not!", function () {
              pm.response.to.have.status(200)})
                  switch(pm.response.code){
@@ -191,11 +197,12 @@ cd spotify-api-testing` <br>
 >The code was 200. Request successful. The server has responded as required. <br>
 ## 3. Read_Current_User's_Playlists
    - **Authorization:** Auth Type should set <ins>Bearer Token</ins> and Token <ins>{{accessToken}}</ins> <br>
+   - **Request Body:** `NULL` <br>
    - **URL:** [{{baseURL}}/me/playlists](https://api.spotify.com/v1/me/playlists) <br>
    - **Method:** GET<br>
    - **Pre-request Script:** `NULL`  
    - **Post-request Script:** <br>
-   ```
+```
         pm.test("Checked whether the response code is 200 or not!", function () {
             pm.response.to.have.status(200)
              })
@@ -242,7 +249,7 @@ cd spotify-api-testing` <br>
 ## 4. Create_Playlist
    - **Authorization:** Auth Type should set <ins>Bearer Token</ins> and Token <ins>{{accessToken}}</ins> <br>
    - **Request Body:** <br>
-   ```
+```
        {
           "name" : "{{plName}}",
           "public" : {{plAvail}},
@@ -252,13 +259,13 @@ cd spotify-api-testing` <br>
    - **URL:** [{{baseURL}}/users/{{put_your_spotify_user_id}}/playlists](https://api.spotify.com/v1/users/{{put_your_spotify_user_id}}/playlists) <br>
    - **Method:** POST<br>
    - **Pre-request Script:** <br>
-         ```
+```
              pm.environment.set("plName", pm.variables.replaceIn("{{$randomFullName}}"))
              pm.environment.set("plAvail", pm.variables.replaceIn("{{$randomBoolean}}"))
              pm.environment.set("plDes", pm.variables.replaceIn("{{$randomCatchPhrase}}"))
-         ```
+```
    - **Post-request Script:** <br>
-         ```
+```
             pm.test("Checked whether the response code is 201 or not!", function () {
                         pm.response.to.have.status(201)
                 })
@@ -311,17 +318,17 @@ cd spotify-api-testing` <br>
                  default:
                      pm.test("Unsuccessful to Create Playlist.");
              }
-         ```
+```
 **Response:**
 >The code was 201. A new resource was created successfully. <br>
 ## 5. Read_After_Create_Playlist_
    - **Authorization:** Auth Type should set <ins>Bearer Token</ins> and Token <ins>{{accessToken}}</ins> <br>
-   - **Request Body:** `NUL` <br>
+   - **Request Body:** `NULL` <br>
    - **URL:** [{{baseURL}}/playlists/{{LastPLid}}](https://api.spotify.com/v1/playlists/{{LastPLid}}) <br>
    - **Method:** GET<br>
    - **Pre-request Script:** `NULL` <br>
    - **Post-request Script:** <br>
-         ```
+```
              pm.test("Checked whether the response code is 200 or not!", function () {
                 pm.response.to.have.status(200)
                   })
@@ -368,17 +375,17 @@ cd spotify-api-testing` <br>
                   default:
                       pm.test("Unsuccessful to fetch details of Spotify Playlists.")
               }
-         ```
+```
 **Response:**
 >The code was 200. Request successful. The server has responded as required. <br>
 ## 6. Read_Specific_Playlist_Items
    - **Authorization:** Auth Type should set <ins>Bearer Token</ins> and Token <ins>{{accessToken}}</ins> <br>
-   - **Request Body:** `NUL` <br>
+   - **Request Body:** `NULL` <br>
    - **URL:** [{{baseURL}}/playlists/{{Susmit KarmakerPL}}](https://api.spotify.com/v1/playlists/{{Susmit KarmakerPL}}) <br>
    - **Method:** GET<br>
    - **Pre-request Script:** `NULL` <br>
    - **Post-request Script:** <br>
-         ```
+```
              pm.test("Checked whether the response code is 200 or not!", function () {
                 pm.response.to.have.status(200)
               })
@@ -423,29 +430,29 @@ cd spotify-api-testing` <br>
                     default:
                         pm.test("Unsuccessful to fetch details of Spotify Playlists.")
                 }
-         ```
+```
 **Response:**
 >The code was 200. Request successful. The server has responded as required. <br>
 ## 7. Update_Playlist_Details
    - **Authorization:** Auth Type should set <ins>Bearer Token</ins> and Token <ins>{{accessToken}}</ins> <br>
    - **Request Body:**
-     ```
+```
          {
            "name" : "{{updateName}}",
            "public" : {{updateAvail}},
            "description" : "{{updateDes}}"
          }
-     ```
+```
    - **URL:** [{{baseURL}}/playlists/{{LastPLid}}](https://api.spotify.com/v1/playlists/{{LastPLid}}) <br>
    - **Method:** PUT<br>
    - **Pre-request Script:**
-     ```
+```
         pm.environment.set("updateName", pm.variables.replaceIn("{{$randomFullName}}"))
         pm.environment.set("updateAvail", pm.variables.replaceIn("{{$randomBoolean}}"))
         pm.environment.set("updateDes", pm.variables.replaceIn("{{$randomCatchPhrase}}"))
-     ```
+```
    - **Post-request Script:** <br>
-     ```
+```
         pm.test("Checked whether the response code is 200 or not!", function () {
             pm.response.to.have.status(200)
           })
@@ -491,7 +498,7 @@ cd spotify-api-testing` <br>
                  default:
                      pm.test("Unsuccessful to Create Playlist.")
              }
-     ```
+```
 **Response:**
 >The code was 200. Request successful. The server has responded as required. <br>
 ## 8. Read_After_Update
@@ -501,7 +508,7 @@ cd spotify-api-testing` <br>
    - **Method:** GET<br>
    - **Pre-request Script:** `NULL`  
    - **Post-request Script:** <br>
-     ```
+```
          pm.test("Checked whether the response code is 200 or not!", function () {
              pm.response.to.have.status(200)
            })
@@ -548,7 +555,7 @@ cd spotify-api-testing` <br>
                   default:
                       pm.test("Unsuccessful to fetch details of Spotify Playlists.")
               }
-     ```
+```
 **Response:**
 >The code was 200. Request successful. The server has responded as required. <br>
 ## 9. Read_User's_Saved_Tracks
@@ -558,7 +565,7 @@ cd spotify-api-testing` <br>
    - **Method:** GET<br>
    - **Pre-request Script:** `NULL`  
    - **Post-request Script:**
-     ```
+```
          pm.test("Checked whether the response code is 200 or not!", function () {
             pm.response.to.have.status(200)
           })
@@ -601,28 +608,28 @@ cd spotify-api-testing` <br>
                   default:
                       pm.test("Unsuccessful to fetch details of Spotify Playlists.")
               }
-     ```
+```
 **Response:**
 >The code was 200. Request successful. The server has responded as required. <br>
 ## 10. Save_Tracks_for_Current_User
    - **Authorization:** Auth Type should set <ins>Bearer Token</ins> and Token <ins>{{accessToken}}</ins> <br>
    - **Request Body:**
-     ```
+```
          {
              "ids" : ["{{saveTrack}}"]
          }
-     ```
+```
    - **URL:** [{{baseURL}}/me/tracks](https://api.spotify.com/v1/me/tracks) <br>
    - **Method:** PUT<br>
    - **Pre-request Script:**
-     ```
+```
         // keep few tracks so that i can randomly use one of these for operation
             var tracks = ["2JzZzZUQj3Qff7wapcbKjc","7npLlaPu9Mfno8hjk5OagD","27tNWlhdAryQY04Gb2ZhUI","27SdWb2rFzO6GWiYDBTD9j","5Ravsw8TmHN5wBiYPPYUFw","1KixkQVDUHggZMU9dUobgm","0b11D9D0hMOYCIMN3OKreM","4fkM7M4Uo5AUASnnsRC7EZ","6FahmzZYKH0zb2f9hrVsvw","1cPDOeVdALLjj4erFPiuqW"]
             var selTra = tracks[Math.floor(Math.random() * tracks.length)]
             pm.environment.set("saveTrack",selTra)
-     ```
+```
    - **Post-request Script:**
-     ```
+```
         pm.test("Checked whether the response code is 200 or not!", function () {
             pm.response.to.have.status(200)
            })
@@ -662,7 +669,7 @@ cd spotify-api-testing` <br>
                  default:
                      pm.test("Unsuccessful to fetch details of Spotify Playlists.")
              }
-     ```
+```
 **Response:**
 >The code was 200. Request successful. The server has responded as required. <br>
 ## 11. Read_After_Save_Track
@@ -672,7 +679,7 @@ cd spotify-api-testing` <br>
    - **Method:** GET<br>
    - **Pre-request Script:** `NULL`  
    - **Post-request Script:**
-     ```
+```
         pm.test("Checked whether the response code is 200 or not!", function () {
             pm.response.to.have.status(200)
            })
@@ -721,22 +728,22 @@ cd spotify-api-testing` <br>
                  default:
                      pm.test("Unsuccessful to fetch details of Spotify Playlists.")
              }
-     ```
+```
 **Response:**
 >The code was 200. Request successful. The server has responded as required. <br>
 ## 12. Delete_User's_Saved_Track
    - **Authorization:** Auth Type should set <ins>Bearer Token</ins> and Token <ins>{{accessToken}}</ins> <br>
    - **Request Body:**
-     ```
+```
          {
              "ids" : ["{{saveTrack}}"]
          }
-     ```
+```
    - **URL:** [{{baseURL}}/me/tracks](https://api.spotify.com/v1/me/tracks) <br>
    - **Method:** DELETE<br>
    - **Pre-request Script:** `NULL`  
    - **Post-request Script:**
-     ```
+```
          pm.test("Checked whether the response code is 200 or not!", function () {
               pm.response.to.have.status(200)
             })
@@ -776,7 +783,7 @@ cd spotify-api-testing` <br>
                   default:
                       pm.test("Unsuccessful to fetch details of Spotify Playlists.")
               }
-     ```
+```
 **Response:**
 >The code was 200. Request successful. The server has responded as required. <br>
 ## 13. Read_After_Delete_Track
@@ -786,7 +793,7 @@ cd spotify-api-testing` <br>
    - **Method:** GET<br>
    - **Pre-request Script:** `NULL`  
    - **Post-request Script:**
-     ```
+```
          pm.test("Checked whether the response code is 200 or not!", function () {
              pm.response.to.have.status(200)
            })
@@ -831,7 +838,7 @@ cd spotify-api-testing` <br>
                   default:
                       pm.test("Unsuccessful to fetch details of Spotify Playlists.")
               }
-     ```
+```
 **Response:**
 >The code was 200. Request successful. The server has responded as required. <br>
 ## Highlights:
