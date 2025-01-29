@@ -55,29 +55,91 @@ cd spotify-api-testing` <br>
         2. PUT /v1/me/tracks: <sup>67% pass rate.</sup><br>
         3. DELETE /v1/me/tracks: <sup>67% pass rate.</sup><br>
 1. Read_Current_User's_Profile
-2. Read_Followed_Artists
-3. Read_Current_User's_Playlists
-4. Create_Playlist
-5. Read_After_Create_Playlist_
-6. Read_Specific_Playlist_Items
-7. Update_Playlist_Details
-8. Read_After_Update
-9. Read_User's_Saved_Tracks
-10. Save_Tracks_for_Current_User
-11. Read_After_Save_Track
-12. Delete_User's_Saved_Track
-13. Read_After_Delete_Track
+   URL: [{{baseURL}}/me] (https://api.spotify.com/v1/me)<br>
+   Method: GET<br>
+   Pre-request Script:<br>
+   `NULL`
+   Post-request Script:<br>
+   ```pm.test("Checked whether the response code is 200 or not!", function () {pm.response.to.have.status(200)})
+switch(pm.response.code){
+
+    case 200:
+        // To verify the reponse body
+        pm.test("Checked whether response body contains data or not!", function(){
+            pm.expect(pm.response.text()).to.not.be.empty
+        })
+        // To verify header authorization
+        pm.test("Checked whether response header contains authorization or not!", function () {
+            pm.response.to.have.header("Authorization")
+        });
+        // To verify response header
+        pm.test("Checked whether response header has expected Content-type or not!", function(){
+            pm.response.to.have.header("Content-Type", "application/json; charset=utf-8")
+        })
+        // To verify the spotify URL
+        pm.test("Checked whether response has valid URL of user-profile  or not!", function () {
+        // Parse the response body as JSON
+        var jsonData = pm.response.json();
+        
+        // Define the regex pattern for the expected Spotify URL format
+        var spotifyUrlPattern = /^https:\/\/open\.spotify\.com\/user\/.+$/;
+        
+        // Assert that the spotify URL matches the expected format
+        pm.expect(jsonData.external_urls.spotify).to.match(spotifyUrlPattern);
+    });
+        pm.test("Checked whether the response time is less than 0.2s or not!", function () {
+            pm.expect(pm.response.responseTime).to.be.below(200)
+        })
+        pm.test("Checked whether the response size is less than 3KB or not!", function(){
+            pm.expect(pm.response.responseSize).to.be.below(3072)
+        })
+        pm.environment.set("user_id", pm.response.json().id)
+        var user_name = pm.response.json().display_name
+        pm.test(`Successful to fetch details of ${user_name}'s Spotify Account.`)
+        var resTime = pm.response.responseTime / 1000
+        pm.test(`The response Time Was ${resTime} Seconds.`)
+        pm.environment.set("username", user_name)
+
+    break
+    // Below cases are as per Spotify API Document
+    case 401:
+        pm.test("The Access Token Has Expired.")
+    break
+    case 403:
+        pm.test("Server is refusing to fulfill your request.")
+    break
+    case 429:
+        pm.test("You've requested too many requests.")
+    break
+    default:
+        pm.test("Unsuccessful to fetch details of Spotify Account.")
+
+}```
+Response:
+`The code was 200. Request successful. The server has responded as required.`
+3. Read_Followed_Artists
+4. Read_Current_User's_Playlists
+5. Create_Playlist
+6. Read_After_Create_Playlist_
+7. Read_Specific_Playlist_Items
+8. Update_Playlist_Details
+9. Read_After_Update
+10. Read_User's_Saved_Tracks
+11. Save_Tracks_for_Current_User
+12. Read_After_Save_Track
+13. Delete_User's_Saved_Track
+14. Read_After_Delete_Track
 ## Highlights:
-  **1. Performance Tests:**<br>
-    - Validated API response times.<br>
-    - Tests like Response time is less than 200ms.<br>
-  **2. Data Integrity:**<br>
-    - Verified user profile details, playlists, and tracks.<br>
-  **3. Custom Reports:**<br>
-    - Enhanced visual reports using the htmlextra reporter.<br>
+  **1. Performance Tests:** <br>
+       - Validated API response times.<br>
+       - Tests like Response time is less than 200ms.<br>
+  **2. Data Integrity:** <br>
+       - Verified user profile details, playlists, and tracks.<br>
+  **3. Custom Reports:** <br>
+       - Enhanced visual reports using the htmlextra reporter.<br>
 ## Challenges
 **1. Intermittent Failures:** Observed occasional 401 errors due to token expiration.<br>
- - Solution: Implemented automated token refreshing.<br>
+       - Solution: Implemented automated token refreshing.<br>
 **2. Response Time Failures:** Some tests failed the benchmark of 200ms.<br>
 **3. Solution:** Increased thresholds and optimized request parameters.<br>
 ## Future Enhancements
@@ -86,3 +148,4 @@ cd spotify-api-testing` <br>
 **- Performance Optimization:** Analyze and optimize the performance of API requests.<br>
 ## Conclusion
 This project demonstrates the comprehensive testing of Spotify API endpoints using Postman and Newman. The tests cover various functionalities, ensuring the reliability and performance of the API. The detailed results provide insights into the API's behavior and performance metrics.
+# Screenshots
