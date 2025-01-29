@@ -120,14 +120,14 @@ cd spotify-api-testing` <br>
 **Response:**
 >The code was 200. Request successful. The server has responded as required. <br>
 
-**2. Read_Followed_Artists**
+## 2. Read_Followed_Artists
    - **Authorization:** Auth Type should set <ins>Bearer Token</ins> and Token <ins>{{accessToken}}</ins> <br>
    - **URL:** [{{baseURL}}/me/following?type=artist](https://api.spotify.com/v1/me//following?type=artist) <br>
    - **Method:** GET<br>
    - **Pre-request Script:** `NULL`  
    - **Post-request Script:** <br>
    ```
-           pm.test("Checked whether the response code is 200 or not!", function () {
+        pm.test("Checked whether the response code is 200 or not!", function () {
              pm.response.to.have.status(200)})
                  switch(pm.response.code){
                      case 200:
@@ -189,17 +189,651 @@ cd spotify-api-testing` <br>
 ```
 **Response:**
 >The code was 200. Request successful. The server has responded as required. <br>
-4. Read_Current_User's_Playlists
-5. Create_Playlist
-6. Read_After_Create_Playlist_
-7. Read_Specific_Playlist_Items
-8. Update_Playlist_Details
-9. Read_After_Update
-10. Read_User's_Saved_Tracks
-11. Save_Tracks_for_Current_User
-12. Read_After_Save_Track
-13. Delete_User's_Saved_Track
-14. Read_After_Delete_Track
+## 3. Read_Current_User's_Playlists
+   - **Authorization:** Auth Type should set <ins>Bearer Token</ins> and Token <ins>{{accessToken}}</ins> <br>
+   - **URL:** [{{baseURL}}/me/playlists](https://api.spotify.com/v1/me/playlists) <br>
+   - **Method:** GET<br>
+   - **Pre-request Script:** `NULL`  
+   - **Post-request Script:** <br>
+   ```
+        pm.test("Checked whether the response code is 200 or not!", function () {
+            pm.response.to.have.status(200)
+             })
+               switch(pm.response.code){
+                   case 200:
+                       // To verify the reponse body
+                       pm.test("Checked whether response body contains data or not!", function(){
+                           pm.expect(pm.response.text()).to.not.be.empty
+                       })
+                       // To verify response header
+                       pm.test("Checked whether response header has expected Content-type or not!", function(){
+                           pm.response.to.have.header("Content-Type", "application/json; charset=utf-8")
+                       })
+                       pm.test("Checked whether the response size is less than 3KB or not!", function(){
+                           pm.expect(pm.response.responseSize).to.be.below(3072)
+                       })
+                       pm.test("Checked whether response time is less than 0.2s or not!", function () {
+                           pm.expect(pm.response.responseTime).to.be.below(200)
+                       })
+                       var resData = pm.response.json()
+                       var pl = resData.items.length
+                       var owner = resData.items[0].owner.display_name
+                       var restime = pm.response.responseTime / 1000
+                       pm.test(`Successful To Fetch ${owner}'s Playlist.`)
+                       pm.test(`Currently ${pl} Playlists Available in ${owner}'s Spotify.`)
+                       pm.test(`Response Time Was ${restime} Seconds.`)
+                   break
+                   // Below cases are as per Spotify API Document
+                       case 401:
+                       pm.test("The Access Token Has Expired.")
+                   break
+                   case 403:
+                       pm.test("Server is refusing to fulfill your request.")
+                   break
+                   case 429:
+                       pm.test("You've requested too many requests.")
+                   break
+                   default:
+                       pm.test("Unsuccessful to fetch details of Spotify Playlists.")
+               }
+```
+**Response:**
+>The code was 200. Request successful. The server has responded as required. <br>
+## 4. Create_Playlist
+   - **Authorization:** Auth Type should set <ins>Bearer Token</ins> and Token <ins>{{accessToken}}</ins> <br>
+   - **Request Body:** <br>
+   ```
+       {
+          "name" : "{{plName}}",
+          "public" : {{plAvail}},
+          "description" : "{{plDes}}"
+       }
+```
+   - **URL:** [{{baseURL}}/users/{{put_your_spotify_user_id}}/playlists](https://api.spotify.com/v1/users/{{put_your_spotify_user_id}}/playlists) <br>
+   - **Method:** POST<br>
+   - **Pre-request Script:** <br>
+         ```
+             pm.environment.set("plName", pm.variables.replaceIn("{{$randomFullName}}"))
+             pm.environment.set("plAvail", pm.variables.replaceIn("{{$randomBoolean}}"))
+             pm.environment.set("plDes", pm.variables.replaceIn("{{$randomCatchPhrase}}"))
+         ```
+   - **Post-request Script:** <br>
+         ```
+            pm.test("Checked whether the response code is 201 or not!", function () {
+                        pm.response.to.have.status(201)
+                })
+             switch(pm.response.code) {
+                 case 201:
+                     // To verify the reponse body
+                     pm.test("Checked whether response body contains data or not!", function(){
+                         pm.expect(pm.response.text()).to.not.be.empty
+                     })
+                     // To verify response header
+                     pm.test("Checked whether response header has expected Content-type or not!", function(){
+                         pm.response.to.have.header("Content-Type", "application/json; charset=utf-8")
+                     })
+                     //To check the response
+                     pm.test("Checked whether response time is less than 0.2s or not!", function () {
+                         pm.expect(pm.response.responseTime).to.be.below(200)
+                     })
+                     pm.test("Checked whether the response size is less than 3KB or not!", function(){
+                         pm.expect(pm.response.responseSize).to.be.below(3072)
+                     })
+                     pm.test(`New Resource created with Status Code of 201.`);
+                     var plName = pm.environment.get("plName"); // Defined plName variable
+                     var plAvail = pm.environment.get("plAvail"); // Defined plName variable
+                     var plDes = pm.environment.get("plDes"); // Defined plName variable
+                     pm.test(`Playlist Has Created With A Name of "${plName}"`);
+                     var pl = pm.response.json().name;
+                     // SET PLAYLIST ID WITH THE NAME IT'S CREATED.
+                     pm.environment.set(`${pl}PL`, pm.response.json().id);
+                     pm.environment.set("LastPLid", pm.response.json().id);
+                     var resTime = pm.response.responseTime / 1000;
+                     pm.test(`The Response Time Was ${resTime} Seconds.`);
+                     console.log(plName);
+                     console.log(plAvail);
+                     console.log(plDes);
+                     break;
+                 // Below cases are as per Spotify API Document
+                 case 400:
+                     var error = pm.response.json().error.message;
+                     pm.test(`Error! ${error}`);
+                     break;
+                 case 401:
+                     pm.test("The Access Token Has Expired.");
+                     break;
+                 case 403:
+                     pm.test("Server is refusing to fulfill your request.");
+                     break;
+                 case 429:
+                     pm.test("You've requested too many requests.");
+                     break;
+                 default:
+                     pm.test("Unsuccessful to Create Playlist.");
+             }
+         ```
+**Response:**
+>The code was 201. A new resource was created successfully. <br>
+## 5. Read_After_Create_Playlist_
+   - **Authorization:** Auth Type should set <ins>Bearer Token</ins> and Token <ins>{{accessToken}}</ins> <br>
+   - **Request Body:** `NUL` <br>
+   - **URL:** [{{baseURL}}/playlists/{{LastPLid}}](https://api.spotify.com/v1/playlists/{{LastPLid}}) <br>
+   - **Method:** GET<br>
+   - **Pre-request Script:** `NULL` <br>
+   - **Post-request Script:** <br>
+         ```
+             pm.test("Checked whether the response code is 200 or not!", function () {
+                pm.response.to.have.status(200)
+                  })
+              switch(pm.response.code){
+                  case 200:
+                      // To verify the reponse body
+                      pm.test("Checked whether response body contains data or not!", function(){
+                          pm.expect(pm.response.text()).to.not.be.empty
+                      })
+                      // To verify response header
+                      pm.test("Checked whether response header has expected Content-type or not!", function(){
+                          pm.response.to.have.header("Content-Type", "application/json; charset=utf-8")
+                      })
+                      pm.test("Checked whether the response size is less than 3KB or not!", function(){
+                          pm.expect(pm.response.responseSize).to.be.below(3072)
+                      })
+                      var resData = pm.response.json()
+                      pm.test("Checking whether 'Playlist Name' is inserted as given input or not!", function(){
+                          pm.expect(pm.environment.get("plName")).to.eql(resData.name)
+                          })
+                      pm.test("Checking whether 'Playlist Description' is inserted as given input or not!", function(){
+                          pm.expect(pm.environment.get("plDes")).to.eql(resData.description)
+                      })
+                      pm.test("Checking whether 'Playlist Public' is inserted as given input or not!", function(){
+                          var enValue = JSON.parse(pm.environment.get("plAvail"))
+                          pm.expect(enValue).to.eql(resData.public)
+                      })
+                      pm.test("Checked whether response time is less than 0.2s or not!", function () {
+                          pm.expect(pm.response.responseTime).to.be.below(200)
+                      })
+                      var resTime = pm.response.responseTime / 1000
+                      pm.test(`The Response Time Was ${resTime} Seconds.`)
+                  break
+                  // Below cases are as per Spotify API Document
+                      case 401:
+                      pm.test("The Access Token Has Expired.")
+                  break
+                  case 403:
+                      pm.test("Server is refusing to fulfill your request.")
+                  break
+                  case 429:
+                      pm.test("You've requested too many requests.")
+                  break
+                  default:
+                      pm.test("Unsuccessful to fetch details of Spotify Playlists.")
+              }
+         ```
+**Response:**
+>The code was 200. Request successful. The server has responded as required. <br>
+## 6. Read_Specific_Playlist_Items
+   - **Authorization:** Auth Type should set <ins>Bearer Token</ins> and Token <ins>{{accessToken}}</ins> <br>
+   - **Request Body:** `NUL` <br>
+   - **URL:** [{{baseURL}}/playlists/{{Susmit KarmakerPL}}](https://api.spotify.com/v1/playlists/{{Susmit KarmakerPL}}) <br>
+   - **Method:** GET<br>
+   - **Pre-request Script:** `NULL` <br>
+   - **Post-request Script:** <br>
+         ```
+             pm.test("Checked whether the response code is 200 or not!", function () {
+                pm.response.to.have.status(200)
+              })
+                var resData = pm.response.json()
+                switch(pm.response.code){
+                    case 200:
+                        // To verify the reponse body
+                        pm.test("Checked whether response body contains data or not!", function(){
+                            pm.expect(pm.response.text()).to.not.be.empty
+                        })
+                        // To verify response header
+                        pm.test("Checked whether response header has expected Content-type or not!", function(){
+                            pm.response.to.have.header("Content-Type", "application/json; charset=utf-8")
+                        })
+                        pm.test("Checked whether response time is less than 0.2s or not!", function () {
+                            pm.expect(pm.response.responseTime).to.be.below(200)
+                        })
+                        pm.test("Checked whether the response size is less than 3KB or not!", function(){
+                            pm.expect(pm.response.responseSize).to.be.below(3072)
+                        })
+                        var plname = resData.name
+                        pm.test(`Successful To Fetch ${plname}'s Playlist Details.`)
+                        if(resData.tracks.items.length > 0) {
+                            var tracks = resData.tracks.items.length
+                            pm.test(`Currently ${tracks} Tracks Available in The Playlist.`)
+                        }else{
+                            pm.test(`Currently No Items Available in The Playlist.`)
+                        }
+                        var resTime = pm.response.responseTime / 1000
+                        pm.test(`The Response Time Was ${resTime} Seconds.`)
+                    break
+                    // Below cases are as per Spotify API Document
+                    case 401:
+                        pm.test("The Access Token Has Expired.")
+                    break
+                    case 403:
+                        pm.test("Server is refusing to fulfill your request.")
+                    break
+                    case 429:
+                        pm.test("You've requested too many requests.")
+                    break
+                    default:
+                        pm.test("Unsuccessful to fetch details of Spotify Playlists.")
+                }
+         ```
+**Response:**
+>The code was 200. Request successful. The server has responded as required. <br>
+## 7. Update_Playlist_Details
+   - **Authorization:** Auth Type should set <ins>Bearer Token</ins> and Token <ins>{{accessToken}}</ins> <br>
+   - **Request Body:**
+     ```
+         {
+           "name" : "{{updateName}}",
+           "public" : {{updateAvail}},
+           "description" : "{{updateDes}}"
+         }
+     ```
+   - **URL:** [{{baseURL}}/playlists/{{LastPLid}}](https://api.spotify.com/v1/playlists/{{LastPLid}}) <br>
+   - **Method:** PUT<br>
+   - **Pre-request Script:**
+     ```
+        pm.environment.set("updateName", pm.variables.replaceIn("{{$randomFullName}}"))
+        pm.environment.set("updateAvail", pm.variables.replaceIn("{{$randomBoolean}}"))
+        pm.environment.set("updateDes", pm.variables.replaceIn("{{$randomCatchPhrase}}"))
+     ```
+   - **Post-request Script:** <br>
+     ```
+        pm.test("Checked whether the response code is 200 or not!", function () {
+            pm.response.to.have.status(200)
+          })
+             switch(pm.response.code)
+             {
+                 case 200:
+                     // To verify the reponse body
+                     pm.test("Checked whether response body contains data or not!", function(){
+                         pm.expect(pm.response.text()).to.not.be.empty
+                     })
+                     // To verify response header
+                     pm.test("Checked whether response header has expected Content-type or not!", function(){
+                         pm.response.to.have.header("Content-Type", "application/json; charset=utf-8")
+                     })
+                     pm.test("Checked whether the response size is less than 3KB or not!", function(){
+                         pm.expect(pm.response.responseSize).to.be.below(3072)
+                     })
+                     var uplname = pm.environment.get("updateName")
+                     pm.test(`Checked whether the playlist has updated with the given Name of "${uplname}" or not!`)
+                     var upldes = pm.environment.get("updateDes")
+                     pm.test(`Checked whether the playlist has updated with the given description of "${upldes}" or not!`)
+                     
+                     pm.test("Checked whether response time is less than 0.2s or not!", function () {
+                         pm.expect(pm.response.responseTime).to.be.below(200)
+                     })
+                     var resTime = pm.response.responseTime / 1000
+                     pm.test(`The Response Time Was ${resTime} Seconds.`)
+                 break
+                 // Below cases are as per Spotify API Document
+                 case 400:
+                     var error = pm.response.json().error.message
+                     pm.test(`Error! ${error}`)
+                 break
+                 case 401:
+                     pm.test("The Access Token Has Expired.")
+                 break
+                 case 403:
+                     pm.test("Server is refusing to fulfill your request.")
+                 break
+                 case 429:
+                     pm.test("You've requested too many requests.")
+                 break
+                 default:
+                     pm.test("Unsuccessful to Create Playlist.")
+             }
+     ```
+**Response:**
+>The code was 200. Request successful. The server has responded as required. <br>
+## 8. Read_After_Update
+   - **Authorization:** Auth Type should set <ins>Bearer Token</ins> and Token <ins>{{accessToken}}</ins> <br>
+   - **Request Body:** `NULL`  
+   - **URL:** [{{baseURL}}/playlists/{{LastPLid}}](https://api.spotify.com/v1/playlists/{{LastPLid}}) <br>
+   - **Method:** GET<br>
+   - **Pre-request Script:** `NULL`  
+   - **Post-request Script:** <br>
+     ```
+         pm.test("Checked whether the response code is 200 or not!", function () {
+             pm.response.to.have.status(200)
+           })
+              var resData = pm.response.json()
+              switch(pm.response.code){
+                  case 200:
+                          // To verify the reponse body
+                      pm.test("Checked whether response body contains data or not!", function(){
+                          pm.expect(pm.response.text()).to.not.be.empty
+                      })
+                      // To verify response header
+                      pm.test("Checked whether response header has expected Content-type or not!", function(){
+                          pm.response.to.have.header("Content-Type", "application/json; charset=utf-8")
+                      })
+                      pm.test("Checked whether the response size is less than 3KB or not!", function(){
+                          pm.expect(pm.response.responseSize).to.be.below(3072)
+                      })
+                      pm.test("Checking whether 'Playlist Name' is updated as given input or not!", function(){
+                          pm.expect(pm.environment.get("updateName")).to.eql(resData.name)
+                          })
+                      pm.test("Checking whether 'Playlist Description' is updated as given input or not!", function(){
+                          pm.expect(pm.environment.get("updateDes")).to.eql(resData.description)
+                      })
+                      pm.test("Checking whether 'Playlist Public' is updated as given input or not!", function(){
+                          var enValue = JSON.parse(pm.environment.get("updateAvail"))
+                          pm.expect(enValue).to.eql(resData.public)
+                      })
+                      pm.test("Checked whether response time is less than 0.2s or not!", function () {
+                          pm.expect(pm.response.responseTime).to.be.below(200)
+                      })
+                      var resTime = pm.response.responseTime / 1000
+                      pm.test(`The Response Time Was ${resTime} Seconds.`)
+                  break
+                  // Below cases are as per Spotify API Document    
+                  case 401:
+                      pm.test("The Access Token Has Expired.")
+                  break
+                  case 403:
+                      pm.test("Server is refusing to fulfill your request.")
+                  break
+                  case 429:
+                      pm.test("You've requested too many requests.")
+                  break
+                  default:
+                      pm.test("Unsuccessful to fetch details of Spotify Playlists.")
+              }
+     ```
+**Response:**
+>The code was 200. Request successful. The server has responded as required. <br>
+## 9. Read_User's_Saved_Tracks
+   - **Authorization:** Auth Type should set <ins>Bearer Token</ins> and Token <ins>{{accessToken}}</ins> <br>
+   - **Request Body:** `NULL`  
+   - **URL:** [{{baseURL}}/me/tracks](https://api.spotify.com/v1/me/tracks) <br>
+   - **Method:** GET<br>
+   - **Pre-request Script:** `NULL`  
+   - **Post-request Script:**
+     ```
+         pm.test("Checked whether the response code is 200 or not!", function () {
+            pm.response.to.have.status(200)
+          })
+              var data1 = [true, false];
+              var data2 = [true, 123];
+              
+              var len = pm.response.json()
+              var tracks = len.items.length
+              
+              switch(pm.response.code){
+                  case 200:
+                      // To verify the reponse body
+                      pm.test("Checked whether response body contains data or not!", function(){
+                          pm.expect(pm.response.text()).to.not.be.empty
+                      })
+                      // To verify response header
+                      pm.test("Checked whether response header has expected Content-type or not!", function(){
+                          pm.response.to.have.header("Content-Type", "application/json; charset=utf-8")
+                      })
+                      pm.test("Checked whether the response size is less than 3KB or not!", function(){
+                          pm.expect(pm.response.responseSize).to.be.below(3072)
+                      })
+                      pm.test("Checked whether response time is less than 0.2s or not!", function () {
+                          pm.expect(pm.response.responseTime).to.be.below(200)
+                      })
+                      pm.test(`Currently ${tracks} Tracks Available in Saved Section.`)
+                      var resTime = pm.response.responseTime / 1000
+                      pm.test(`The Response Time Was ${resTime} Seconds.`)
+                  break
+                  // Below cases are as per Spotify API Document
+                  case 401:
+                      pm.test("The Access Token Has Expired.")
+                  break
+                  case 403:
+                      pm.test("Server is refusing to fulfill your request.")
+                  break
+                  case 429:
+                      pm.test("You've requested too many requests.")
+                  break
+                  default:
+                      pm.test("Unsuccessful to fetch details of Spotify Playlists.")
+              }
+     ```
+**Response:**
+>The code was 200. Request successful. The server has responded as required. <br>
+## 10. Save_Tracks_for_Current_User
+   - **Authorization:** Auth Type should set <ins>Bearer Token</ins> and Token <ins>{{accessToken}}</ins> <br>
+   - **Request Body:**
+     ```
+         {
+             "ids" : ["{{saveTrack}}"]
+         }
+     ```
+   - **URL:** [{{baseURL}}/me/tracks](https://api.spotify.com/v1/me/tracks) <br>
+   - **Method:** PUT<br>
+   - **Pre-request Script:**
+     ```
+        // keep few tracks so that i can randomly use one of these for operation
+            var tracks = ["2JzZzZUQj3Qff7wapcbKjc","7npLlaPu9Mfno8hjk5OagD","27tNWlhdAryQY04Gb2ZhUI","27SdWb2rFzO6GWiYDBTD9j","5Ravsw8TmHN5wBiYPPYUFw","1KixkQVDUHggZMU9dUobgm","0b11D9D0hMOYCIMN3OKreM","4fkM7M4Uo5AUASnnsRC7EZ","6FahmzZYKH0zb2f9hrVsvw","1cPDOeVdALLjj4erFPiuqW"]
+            var selTra = tracks[Math.floor(Math.random() * tracks.length)]
+            pm.environment.set("saveTrack",selTra)
+     ```
+   - **Post-request Script:**
+     ```
+        pm.test("Checked whether the response code is 200 or not!", function () {
+            pm.response.to.have.status(200)
+           })
+             switch(pm.response.code){
+                 case 200:
+                     // To verify the reponse body
+                     pm.test("Checked whether response body contains data or not!", function(){
+                         pm.expect(pm.response.text()).to.not.be.empty
+                     })
+                     // To verify response header
+                     pm.test("Checked whether response header has expected Content-type or not!", function(){
+                         pm.response.to.have.header("Content-Type", "application/json; charset=utf-8")
+                     })
+                     pm.test("Checked whether the response size is less than 3KB or not!", function(){
+                         pm.expect(pm.response.responseSize).to.be.below(3072)
+                     })
+                     pm.test("Checked whether response time is less than 0.2s or not!", function () {
+                         pm.expect(pm.response.responseTime).to.be.below(200)
+                     })
+                     var resTime = pm.response.responseTime / 1000
+                     pm.test(`The Response Time Was ${resTime} Seconds.`)
+                 break
+                 // Below cases are as per Spotify API Document
+                 case 400:
+                     var error = pm.response.json().error.message
+                     pm.test(`Error! ${error}.`)
+                 break
+                 case 401:
+                     pm.test("The Access Token Has Expired.")
+                 break
+                 case 403:
+                     pm.test("Server is refusing to fulfill your request.")
+                 break
+                 case 429:
+                     pm.test("You've requested too many requests.")
+                 break
+                 default:
+                     pm.test("Unsuccessful to fetch details of Spotify Playlists.")
+             }
+     ```
+**Response:**
+>The code was 200. Request successful. The server has responded as required. <br>
+## 11. Read_After_Save_Track
+   - **Authorization:** Auth Type should set <ins>Bearer Token</ins> and Token <ins>{{accessToken}}</ins> <br>
+   - **Request Body:** `NULL`  
+   - **URL:** [{{baseURL}}/me/tracks](https://api.spotify.com/v1/me/tracks) <br>
+   - **Method:** GET<br>
+   - **Pre-request Script:** `NULL`  
+   - **Post-request Script:**
+     ```
+        pm.test("Checked whether the response code is 200 or not!", function () {
+            pm.response.to.have.status(200)
+           })
+             switch(pm.response.code){
+                 case 200:
+                     // To verify the reponse body
+                     pm.test("Checked whether response body contains data or not!", function(){
+                         pm.expect(pm.response.text()).to.not.be.empty
+                     })
+                     // To verify response header
+                     pm.test("Checked whether response header has expected Content-type or not!", function(){
+                         pm.response.to.have.header("Content-Type", "application/json; charset=utf-8")
+                     })
+                     pm.test("Checked whether the response size is less than 3KB or not!", function(){
+                         pm.expect(pm.response.responseSize).to.be.below(3072)
+                     })
+                     pm.test("Checked whether response time is less than 0.2s or not!", function () {
+                         pm.expect(pm.response.responseTime).to.be.below(200)
+                     })
+                     var resBody = pm.response.json()
+                     var tracks = resBody.items.length
+                     let match = pm.environment.get("saveTrack")
+                     let trackName = ""
+             
+                     resBody.items.forEach(shorten => {
+                         if(shorten.track.id == match){
+                             trackName = shorten.track.name
+                             }
+                         })
+             
+                     pm.test(`Recently, A Track with The Title of "${trackName}" is Added.`)
+                     pm.test(`Currently ${tracks} Tracks Available To Saved.`)
+                     var resTime = pm.response.responseTime / 1000
+                     pm.test(`The Response Time Was ${resTime} Seconds.`)
+                 break
+                 // Below cases are as per Spotify API Document
+                 case 401:
+                     pm.test("The Access Token Has Expired.")
+                 break
+                 case 403:
+                     pm.test("Server is refusing to fulfill your request.")
+                 break
+                 case 429:
+                     pm.test("You've requested too many requests.")
+                 break
+                 default:
+                     pm.test("Unsuccessful to fetch details of Spotify Playlists.")
+             }
+     ```
+**Response:**
+>The code was 200. Request successful. The server has responded as required. <br>
+## 12. Delete_User's_Saved_Track
+   - **Authorization:** Auth Type should set <ins>Bearer Token</ins> and Token <ins>{{accessToken}}</ins> <br>
+   - **Request Body:**
+     ```
+         {
+             "ids" : ["{{saveTrack}}"]
+         }
+     ```
+   - **URL:** [{{baseURL}}/me/tracks](https://api.spotify.com/v1/me/tracks) <br>
+   - **Method:** DELETE<br>
+   - **Pre-request Script:** `NULL`  
+   - **Post-request Script:**
+     ```
+         pm.test("Checked whether the response code is 200 or not!", function () {
+              pm.response.to.have.status(200)
+            })
+              switch(pm.response.code){
+                  case 200:
+                      // To verify the reponse body
+                      pm.test("Checked whether response body contains data or not!", function(){
+                          pm.expect(pm.response.text()).to.not.be.empty
+                      })
+                      // To verify response header
+                      pm.test("Checked whether response header has expected Content-type or not!", function(){
+                          pm.response.to.have.header("Content-Type", "application/json; charset=utf-8")
+                      })
+                      pm.test("Checked whether the response size is less than 3KB or not!", function(){
+                          pm.expect(pm.response.responseSize).to.be.below(3072)
+                      })
+                      pm.test("Checked whether response time is less than 0.2s or not!", function () {
+                          pm.expect(pm.response.responseTime).to.be.below(200)
+                      })
+                      var resTime = pm.response.responseTime / 1000
+                      pm.test(`The Response Time Was ${resTime} Seconds.`)
+                  break
+                  // Below cases are as per Spotify API Document
+                  case 400:
+                      var error = pm.response.json().error.message
+                      pm.test(`Error! ${error}`)
+                  break
+                  case 401:
+                      pm.test("The Access Token Has Expired.")
+                  break
+                  case 403:
+                      pm.test("Server is refusing to fulfill your request.")
+                  break
+                  case 429:
+                      pm.test("You've requested too many requests.")
+                  break
+                  default:
+                      pm.test("Unsuccessful to fetch details of Spotify Playlists.")
+              }
+     ```
+**Response:**
+>The code was 200. Request successful. The server has responded as required. <br>
+## 13. Read_After_Delete_Track
+   - **Authorization:** Auth Type should set <ins>Bearer Token</ins> and Token <ins>{{accessToken}}</ins> <br>
+   - **Request Body:** `NULL`  
+   - **URL:** [{{baseURL}}/me/tracks](https://api.spotify.com/v1/me/tracks) <br>
+   - **Method:** GET<br>
+   - **Pre-request Script:** `NULL`  
+   - **Post-request Script:**
+     ```
+         pm.test("Checked whether the response code is 200 or not!", function () {
+             pm.response.to.have.status(200)
+           })
+              var resBody = pm.response.json()
+              var tracks = resBody.items.length
+              switch(pm.response.code){
+                  case 200:
+                      // To verify the reponse body
+                      pm.test("Checked whether response body contains data or not!", function(){
+                          pm.expect(pm.response.text()).to.not.be.empty
+                      })
+                      // To verify response header
+                      pm.test("Checked whether response header has expected Content-type or not!", function(){
+                          pm.response.to.have.header("Content-Type", "application/json; charset=utf-8")
+                      })
+                      pm.test("Checked whether the response size is less than 3KB or not!", function(){
+                          pm.expect(pm.response.responseSize).to.be.below(3072)
+                      })
+                      pm.test("Checked whether response time is less than 0.2s or not!", function () {
+                          pm.expect(pm.response.responseTime).to.be.below(200)
+                      })
+                      let match = pm.environment.get("saveTrack")
+                      var res = pm.response.text()
+                      if(!res.includes(match)){
+                          pm.test("The Track Not Found Cause of Being Deleted.")
+                      }
+                      pm.test(`Currently ${tracks} Tracks Available To Saved.`)
+              
+                      var resTime = pm.response.responseTime / 1000
+                      pm.test(`The Response Time Was ${resTime} Seconds.`)
+                  break
+                  // Below cases are as per Spotify API Document
+                  case 401:
+                      pm.test("The Access Token Has Expired.")
+                  break
+                  case 403:
+                      pm.test("Server is refusing to fulfill your request.")
+                  break
+                  case 429:
+                      pm.test("You've requested too many requests.")
+                  break
+                  default:
+                      pm.test("Unsuccessful to fetch details of Spotify Playlists.")
+              }
+     ```
+**Response:**
+>The code was 200. Request successful. The server has responded as required. <br>
 ## Highlights:
   **1. Performance Tests:** <br>
        - Validated API response times.<br>
