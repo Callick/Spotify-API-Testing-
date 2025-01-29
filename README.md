@@ -55,10 +55,10 @@ cd spotify-api-testing` <br>
            2. PUT /v1/me/tracks: <sup>67% pass rate.</sup><br>
            3. DELETE /v1/me/tracks: <sup>67% pass rate.</sup><br>
 **1. Read_Current_User's_Profile**
-   **URL:** [{{baseURL}}/me](url) <br>
-   **Method:** GET<br>
-   **Pre-request Script:** `NULL`  
-   **Post-request Script:**<br>
+   - **URL:** [{{baseURL}}/me](url) <br>
+   - **Method:** GET<br>
+   - **Pre-request Script:** `NULL`  
+   - **Post-request Script:** <br>
    ```
     pm.test("Checked whether the response code is 200 or not!", function () {pm.response.to.have.status(200)})
     switch(pm.response.code){
@@ -114,9 +114,11 @@ cd spotify-api-testing` <br>
           default:
               pm.test("Unsuccessful to fetch details of Spotify Account.")
       
-      }  
-Response: > The code was 200. Request successful. The server has responded as required. <br>
-3. Read_Followed_Artists
+      }```  
+**Response:** >The code was 200. Request successful. The server has responded as required. <br>
+
+**3. Read_Followed_Artists**
+      **URL:**
 4. Read_Current_User's_Playlists
 5. Create_Playlist
 6. Read_After_Create_Playlist_
