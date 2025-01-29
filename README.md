@@ -41,16 +41,16 @@ cd spotify-api-testing` <br>
        - Total Run Duration<sup>15s</sup>  
        - Failures<sup>20</sup>  
        - Average Response Time<sup>267ms</sup>  
-  **Detailed Results:**
-       - User Profile<br>
+  **Detailed Results:** <br>
+       **- User Profile**<br>
            1. GET /v1/me: <sup>80% pass rate.</sup><br>
            2. GET /v1/me/following?type=artist: <sup>78% pass rate.</sup><br>
-       - Playlists<br>
+       **- Playlists** <br>
            1. GET /v1/me/playlists: <sup>75% pass rate.</sup><br>
            2. POST /v1/users/{user_id}/playlists: <sup>88% pass rate.</sup><br>
            3. GET /v1/playlists/{playlist_id}: <sup>100% pass rate.</sup><br>
            4. PUT /v1/playlists/{playlist_id}: <sup>75% pass rate.</sup><br>
-       - Tracks<br>
+       **- Tracks** <br>
            1. GET /v1/me/tracks: <sup>71% pass rate.</sup><br>
            2. PUT /v1/me/tracks: <sup>67% pass rate.</sup><br>
            3. DELETE /v1/me/tracks: <sup>67% pass rate.</sup><br>
@@ -114,10 +114,8 @@ cd spotify-api-testing` <br>
           default:
               pm.test("Unsuccessful to fetch details of Spotify Account.")
       
-      }```
-
-Response:<br>
-```The code was 200. Request successful. The server has responded as required.```
+      }  
+Response: > The code was 200. Request successful. The server has responded as required. <br>
 3. Read_Followed_Artists
 4. Read_Current_User's_Playlists
 5. Create_Playlist
