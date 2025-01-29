@@ -54,11 +54,11 @@ cd spotify-api-testing` <br>
            1. GET /v1/me/tracks: <sup>71% pass rate.</sup><br>
            2. PUT /v1/me/tracks: <sup>67% pass rate.</sup><br>
            3. DELETE /v1/me/tracks: <sup>67% pass rate.</sup><br>
-1. Read_Current_User's_Profile
-   URL: {{baseURL}}/me <br>
-   Method: GET<br>
-   Pre-request Script: `NULL`  
-   Post-request Script:<br>
+**1. Read_Current_User's_Profile**
+   **URL:** [{{baseURL}}/me](url) <br>
+   **Method:** GET<br>
+   **Pre-request Script:** `NULL`  
+   **Post-request Script:**<br>
    ```
     pm.test("Checked whether the response code is 200 or not!", function () {pm.response.to.have.status(200)})
     switch(pm.response.code){
