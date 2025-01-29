@@ -60,7 +60,8 @@ cd spotify-api-testing` <br>
    Pre-request Script:<br>
    `NULL`
    Post-request Script:<br>
-   ```pm.test("Checked whether the response code is 200 or not!", function () {pm.response.to.have.status(200)})
+   ```
+   pm.test("Checked whether the response code is 200 or not!", function () {pm.response.to.have.status(200)})
 switch(pm.response.code){
 
     case 200:
@@ -114,9 +115,10 @@ switch(pm.response.code){
     default:
         pm.test("Unsuccessful to fetch details of Spotify Account.")
 
-}```
-Response:
-`The code was 200. Request successful. The server has responded as required.`
+}
+```
+Response:<br>
+```The code was 200. Request successful. The server has responded as required.```
 3. Read_Followed_Artists
 4. Read_Current_User's_Playlists
 5. Create_Playlist
