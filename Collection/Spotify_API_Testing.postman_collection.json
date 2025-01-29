@@ -1,0 +1,1396 @@
+{
+	"info": {
+		"_postman_id": "6827fb74-05f7-4956-b41c-b03cc6099937",
+		"name": "Spotify_API_Testing",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "33497213"
+	},
+	"item": [
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Read_Current_User's_Profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Checked whether the response code is 200 or not!\", function () {pm.response.to.have.status(200)})\r",
+									"switch(pm.response.code){\r",
+									"\r",
+									"    case 200:\r",
+									"        // To verify the spotify URL\r",
+									"        pm.test(\"Checked whether response has valid URL of user-profile  or not!\", function () {\r",
+									"        // Parse the response body as JSON\r",
+									"        var jsonData = pm.response.json();\r",
+									"        \r",
+									"        // Define the regex pattern for the expected Spotify URL format\r",
+									"        var spotifyUrlPattern = /^https:\\/\\/open\\.spotify\\.com\\/user\\/.+$/;\r",
+									"        \r",
+									"        // Assert that the spotify URL matches the expected format\r",
+									"        pm.expect(jsonData.external_urls.spotify).to.match(spotifyUrlPattern);\r",
+									"    });\r",
+									"        pm.test(\"Checked whether the response time is less than 0.2s or not!\", function () {\r",
+									"            pm.expect(pm.response.responseTime).to.be.below(200)\r",
+									"        })\r",
+									"        pm.environment.set(\"user_id\", pm.response.json().id)\r",
+									"        var user_name = pm.response.json().display_name\r",
+									"        pm.test(`Successful to fetch details of ${user_name}'s Spotify Account.`)\r",
+									"        var resTime = pm.response.responseTime / 1000\r",
+									"        pm.test(`The response Time Was ${resTime} Seconds.`)\r",
+									"        pm.environment.set(\"username\", user_name)\r",
+									"\r",
+									"    break\r",
+									"    // Below cases are as per Spotify API Document\r",
+									"    case 401:\r",
+									"        pm.test(\"The Access Token Has Expired.\")\r",
+									"    break\r",
+									"    case 403:\r",
+									"        pm.test(\"Server is refusing to fulfill your request.\")\r",
+									"    break\r",
+									"    case 429:\r",
+									"        pm.test(\"You've requested too many requests.\")\r",
+									"    break\r",
+									"    default:\r",
+									"        pm.test(\"Unsuccessful to fetch details of Spotify Account.\")\r",
+									"\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/me",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read_Followed_Artists",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"    pm.test(\"Checked whether the response code is 200 or not!\", function () {\r",
+									"            pm.response.to.have.status(200)\r",
+									"    })\r",
+									"switch(pm.response.code){\r",
+									"    case 200:\r",
+									"        // To verify the reponse body\r",
+									"        pm.test(\"Checked whether response body contains data or not!\", function(){\r",
+									"            pm.expect(pm.response.text()).to.not.be.empty\r",
+									"        })\r",
+									"        // To verify response header\r",
+									"        pm.test(\"Checked whether response header has expected Content-type or not!\", function(){\r",
+									"            pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\")\r",
+									"        })\r",
+									"        pm.test(\"Checked whether response time is less than 0.2s or not!\", function () {\r",
+									"            pm.expect(pm.response.responseTime).to.be.below(200)\r",
+									"        })\r",
+									"        pm.test(\"Checked whether the response size is less than 3KB or not!\", function(){\r",
+									"            pm.expect(pm.response.responseSize).to.be.below(3072)\r",
+									"        })\r",
+									"        pm.test(\"Successful To Fetch User's Info.\")\r",
+									"        \r",
+									"        // STORE THE RESPONSE INTO VARIABLE\r",
+									"        var resBody = pm.response.json()\r",
+									"        \r",
+									"        // CATCH THE LENGTH OF ITEM ARRAY TO USE IN TEST-CASE\r",
+									"        var items = resBody.artists.items.length\r",
+									"        \r",
+									"        // GET THE USERNAME FROM ENVIRONMENT TO USE IN TEST-CASE\r",
+									"        var usern = pm.environment.get(\"username\")\r",
+									"        \r",
+									"        // DECLARE TWO VARIABLES THAT WILL HELP TO FIND ARTIST WITH MAX FOLLOWERS\r",
+									"        let maxFollowers = 0\r",
+									"        let popular = \"\"\r",
+									"        \r",
+									"        // LOOP FOR THE EACH ITEMS TO FIND THE ARTIST WITH MAX FOLLOWERS\r",
+									"        resBody.artists.items.forEach(shorten => {\r",
+									"            if (shorten.followers.total > maxFollowers) {\r",
+									"                maxFollowers = shorten.followers.total\r",
+									"                popular = shorten.name\r",
+									"            }\r",
+									"        })\r",
+									"        pm.test(`Details From ${usern}'s Spotify With Following(${items}).`)\r",
+									"        pm.test(`The Most Popular Artist From User's Following is ${popular}.`)\r",
+									"        var resTime = pm.response.responseTime / 1000\r",
+									"        pm.test(`The Response Time Was ${resTime} Seconds.`)\r",
+									"\r",
+									"    break\r",
+									"    // Below cases are as per Spotify API Document\r",
+									"    case 401:\r",
+									"        pm.test(\"The Access Token Has Expired.\")\r",
+									"    break\r",
+									"    case 403:\r",
+									"        pm.test(\"Server is refusing to fulfill your request.\")\r",
+									"    break\r",
+									"    case 429:\r",
+									"        pm.test(\"You've requested too many requests.\")\r",
+									"    break\r",
+									"    default:\r",
+									"        pm.test(\"Unsuccessful to fetch details of Spotify Account.\")\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/me/following?type=artist",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"me",
+								"following"
+							],
+							"query": [
+								{
+									"key": "type",
+									"value": "artist"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Playlists",
+			"item": [
+				{
+					"name": "Read_Current_User's_Playlists",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Checked whether the response code is 200 or not!\", function () {\r",
+									"            pm.response.to.have.status(200)\r",
+									"    })\r",
+									"switch(pm.response.code){\r",
+									"    case 200:\r",
+									"        // To verify the reponse body\r",
+									"        pm.test(\"Checked whether response body contains data or not!\", function(){\r",
+									"            pm.expect(pm.response.text()).to.not.be.empty\r",
+									"        })\r",
+									"        // To verify response header\r",
+									"        pm.test(\"Checked whether response header has expected Content-type or not!\", function(){\r",
+									"            pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\")\r",
+									"        })\r",
+									"        pm.test(\"Checked whether the response size is less than 3KB or not!\", function(){\r",
+									"            pm.expect(pm.response.responseSize).to.be.below(3072)\r",
+									"        })\r",
+									"        pm.test(\"Checked whether response time is less than 0.2s or not!\", function () {\r",
+									"            pm.expect(pm.response.responseTime).to.be.below(200)\r",
+									"        })\r",
+									"        var resData = pm.response.json()\r",
+									"        var pl = resData.items.length\r",
+									"        var owner = resData.items[0].owner.display_name\r",
+									"        var restime = pm.response.responseTime / 1000\r",
+									"        pm.test(`Successful To Fetch ${owner}'s Playlist.`)\r",
+									"        pm.test(`Currently ${pl} Playlists Available in ${owner}'s Spotify.`)\r",
+									"        pm.test(`Response Time Was ${restime} Seconds.`)\r",
+									"    break\r",
+									"    // Below cases are as per Spotify API Document\r",
+									"        case 401:\r",
+									"        pm.test(\"The Access Token Has Expired.\")\r",
+									"    break\r",
+									"    case 403:\r",
+									"        pm.test(\"Server is refusing to fulfill your request.\")\r",
+									"    break\r",
+									"    case 429:\r",
+									"        pm.test(\"You've requested too many requests.\")\r",
+									"    break\r",
+									"    default:\r",
+									"        pm.test(\"Unsuccessful to fetch details of Spotify Playlists.\")\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/me/playlists",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"me",
+								"playlists"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create_Playlist",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Checked whether the response code is 201 or not!\", function () {\r",
+									"            pm.response.to.have.status(201)\r",
+									"    })\r",
+									"switch(pm.response.code) {\r",
+									"    case 201:\r",
+									"        // To verify the reponse body\r",
+									"        pm.test(\"Checked whether response body contains data or not!\", function(){\r",
+									"            pm.expect(pm.response.text()).to.not.be.empty\r",
+									"        })\r",
+									"        // To verify response header\r",
+									"        pm.test(\"Checked whether response header has expected Content-type or not!\", function(){\r",
+									"            pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\")\r",
+									"        })\r",
+									"        //To check the response\r",
+									"        pm.test(\"Checked whether response time is less than 0.2s or not!\", function () {\r",
+									"            pm.expect(pm.response.responseTime).to.be.below(200)\r",
+									"        })\r",
+									"        pm.test(\"Checked whether the response size is less than 3KB or not!\", function(){\r",
+									"            pm.expect(pm.response.responseSize).to.be.below(3072)\r",
+									"        })\r",
+									"        pm.test(`New Resource created with Status Code of 201.`);\r",
+									"        var plName = pm.environment.get(\"plName\"); // Defined plName variable\r",
+									"        var plAvail = pm.environment.get(\"plAvail\"); // Defined plName variable\r",
+									"        var plDes = pm.environment.get(\"plDes\"); // Defined plName variable\r",
+									"        pm.test(`Playlist Has Created With A Name of \"${plName}\"`);\r",
+									"        var pl = pm.response.json().name;\r",
+									"        // SET PLAYLIST ID WITH THE NAME IT'S CREATED.\r",
+									"        pm.environment.set(`${pl}PL`, pm.response.json().id);\r",
+									"        pm.environment.set(\"LastPLid\", pm.response.json().id);\r",
+									"        var resTime = pm.response.responseTime / 1000;\r",
+									"        pm.test(`The Response Time Was ${resTime} Seconds.`);\r",
+									"        console.log(plName);\r",
+									"        console.log(plAvail);\r",
+									"        console.log(plDes);\r",
+									"        break;\r",
+									"    // Below cases are as per Spotify API Document\r",
+									"    case 400:\r",
+									"        var error = pm.response.json().error.message;\r",
+									"        pm.test(`Error! ${error}`);\r",
+									"        break;\r",
+									"    case 401:\r",
+									"        pm.test(\"The Access Token Has Expired.\");\r",
+									"        break;\r",
+									"    case 403:\r",
+									"        pm.test(\"Server is refusing to fulfill your request.\");\r",
+									"        break;\r",
+									"    case 429:\r",
+									"        pm.test(\"You've requested too many requests.\");\r",
+									"        break;\r",
+									"    default:\r",
+									"        pm.test(\"Unsuccessful to Create Playlist.\");\r",
+									"}\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"plName\", pm.variables.replaceIn(\"{{$randomFullName}}\"))\r",
+									"pm.environment.set(\"plAvail\", pm.variables.replaceIn(\"{{$randomBoolean}}\"))\r",
+									"pm.environment.set(\"plDes\", pm.variables.replaceIn(\"{{$randomCatchPhrase}}\"))\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\" : \"{{plName}}\",\r\n    \"public\" : {{plAvail}},\r\n    \"description\" : \"{{plDes}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/users/{{user_id}}/playlists",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"users",
+								"{{user_id}}",
+								"playlists"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read_After_Create_Playlist_",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Checked whether the response code is 200 or not!\", function () {\r",
+									"            pm.response.to.have.status(200)\r",
+									"    })\r",
+									"switch(pm.response.code){\r",
+									"    case 200:\r",
+									"        // To verify the reponse body\r",
+									"        pm.test(\"Checked whether response body contains data or not!\", function(){\r",
+									"            pm.expect(pm.response.text()).to.not.be.empty\r",
+									"        })\r",
+									"        // To verify response header\r",
+									"        pm.test(\"Checked whether response header has expected Content-type or not!\", function(){\r",
+									"            pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\")\r",
+									"        })\r",
+									"        pm.test(\"Checked whether the response size is less than 3KB or not!\", function(){\r",
+									"            pm.expect(pm.response.responseSize).to.be.below(3072)\r",
+									"        })\r",
+									"        var resData = pm.response.json()\r",
+									"        pm.test(\"Checking whether 'Playlist Name' is inserted as given input or not!\", function(){\r",
+									"            pm.expect(pm.environment.get(\"plName\")).to.eql(resData.name)\r",
+									"            })\r",
+									"        pm.test(\"Checking whether 'Playlist Description' is inserted as given input or not!\", function(){\r",
+									"            pm.expect(pm.environment.get(\"plDes\")).to.eql(resData.description)\r",
+									"        })\r",
+									"        pm.test(\"Checking whether 'Playlist Public' is inserted as given input or not!\", function(){\r",
+									"            var enValue = JSON.parse(pm.environment.get(\"plAvail\"))\r",
+									"            pm.expect(enValue).to.eql(resData.public)\r",
+									"        })\r",
+									"        pm.test(\"Checked whether response time is less than 0.2s or not!\", function () {\r",
+									"            pm.expect(pm.response.responseTime).to.be.below(200)\r",
+									"        })\r",
+									"        var resTime = pm.response.responseTime / 1000\r",
+									"        pm.test(`The Response Time Was ${resTime} Seconds.`)\r",
+									"    break\r",
+									"    // Below cases are as per Spotify API Document\r",
+									"        case 401:\r",
+									"        pm.test(\"The Access Token Has Expired.\")\r",
+									"    break\r",
+									"    case 403:\r",
+									"        pm.test(\"Server is refusing to fulfill your request.\")\r",
+									"    break\r",
+									"    case 429:\r",
+									"        pm.test(\"You've requested too many requests.\")\r",
+									"    break\r",
+									"    default:\r",
+									"        pm.test(\"Unsuccessful to fetch details of Spotify Playlists.\")\r",
+									"}\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// SPOTIFY API SHOWS \"ERROR\" WHILE MATCHING, CAUSE OF IMMEDIATE READ AFTER UPDATING DETAILS.\r",
+									"// DELAY 05 SECs TO EXECUTE AFTER BEING REQUEST.\r",
+									"//setTimeout(function(){},5000)"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/playlists/{{LastPLid}}",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"playlists",
+								"{{LastPLid}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read_Specific_Playlist_Items",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Checked whether the response code is 200 or not!\", function () {\r",
+									"            pm.response.to.have.status(200)\r",
+									"    })\r",
+									"var resData = pm.response.json()\r",
+									"switch(pm.response.code){\r",
+									"    case 200:\r",
+									"        // To verify the reponse body\r",
+									"        pm.test(\"Checked whether response body contains data or not!\", function(){\r",
+									"            pm.expect(pm.response.text()).to.not.be.empty\r",
+									"        })\r",
+									"        // To verify response header\r",
+									"        pm.test(\"Checked whether response header has expected Content-type or not!\", function(){\r",
+									"            pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\")\r",
+									"        })\r",
+									"        pm.test(\"Checked whether response time is less than 0.2s or not!\", function () {\r",
+									"            pm.expect(pm.response.responseTime).to.be.below(200)\r",
+									"        })\r",
+									"        pm.test(\"Checked whether the response size is less than 3KB or not!\", function(){\r",
+									"            pm.expect(pm.response.responseSize).to.be.below(3072)\r",
+									"        })\r",
+									"        var plname = resData.name\r",
+									"        pm.test(`Successful To Fetch ${plname}'s Playlist Details.`)\r",
+									"        if(resData.tracks.items.length > 0) {\r",
+									"            var tracks = resData.tracks.items.length\r",
+									"            pm.test(`Currently ${tracks} Tracks Available in The Playlist.`)\r",
+									"        }else{\r",
+									"            pm.test(`Currently No Items Available in The Playlist.`)\r",
+									"        }\r",
+									"        var resTime = pm.response.responseTime / 1000\r",
+									"        pm.test(`The Response Time Was ${resTime} Seconds.`)\r",
+									"    break\r",
+									"    // Below cases are as per Spotify API Document\r",
+									"    case 401:\r",
+									"        pm.test(\"The Access Token Has Expired.\")\r",
+									"    break\r",
+									"    case 403:\r",
+									"        pm.test(\"Server is refusing to fulfill your request.\")\r",
+									"    break\r",
+									"    case 429:\r",
+									"        pm.test(\"You've requested too many requests.\")\r",
+									"    break\r",
+									"    default:\r",
+									"        pm.test(\"Unsuccessful to fetch details of Spotify Playlists.\")\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/playlists/{{Susmit KarmakerPL}}",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"playlists",
+								"{{Susmit KarmakerPL}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update_Playlist_Details",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"updateName\", pm.variables.replaceIn(\"{{$randomFullName}}\"))\r",
+									"pm.environment.set(\"updateAvail\", pm.variables.replaceIn(\"{{$randomBoolean}}\"))\r",
+									"pm.environment.set(\"updateDes\", pm.variables.replaceIn(\"{{$randomCatchPhrase}}\"))\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Checked whether the response code is 200 or not!\", function () {\r",
+									"            pm.response.to.have.status(200)\r",
+									"    })\r",
+									"switch(pm.response.code)\r",
+									"{\r",
+									"    case 200:\r",
+									"        // To verify the reponse body\r",
+									"        pm.test(\"Checked whether response body contains data or not!\", function(){\r",
+									"            pm.expect(pm.response.text()).to.not.be.empty\r",
+									"        })\r",
+									"        // To verify response header\r",
+									"        pm.test(\"Checked whether response header has expected Content-type or not!\", function(){\r",
+									"            pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\")\r",
+									"        })\r",
+									"        pm.test(\"Checked whether the response size is less than 3KB or not!\", function(){\r",
+									"            pm.expect(pm.response.responseSize).to.be.below(3072)\r",
+									"        })\r",
+									"        var uplname = pm.environment.get(\"updateName\")\r",
+									"        pm.test(`Checked whether the playlist has updated with the given Name of \"${uplname}\" or not!`)\r",
+									"        var upldes = pm.environment.get(\"updateDes\")\r",
+									"        pm.test(`Checked whether the playlist has updated with the given description of \"${upldes}\" or not!`)\r",
+									"        \r",
+									"        pm.test(\"Checked whether response time is less than 0.2s or not!\", function () {\r",
+									"            pm.expect(pm.response.responseTime).to.be.below(200)\r",
+									"        })\r",
+									"        var resTime = pm.response.responseTime / 1000\r",
+									"        pm.test(`The Response Time Was ${resTime} Seconds.`)\r",
+									"    break\r",
+									"    // Below cases are as per Spotify API Document\r",
+									"    case 400:\r",
+									"        var error = pm.response.json().error.message\r",
+									"        pm.test(`Error! ${error}`)\r",
+									"    break\r",
+									"    case 401:\r",
+									"        pm.test(\"The Access Token Has Expired.\")\r",
+									"    break\r",
+									"    case 403:\r",
+									"        pm.test(\"Server is refusing to fulfill your request.\")\r",
+									"    break\r",
+									"    case 429:\r",
+									"        pm.test(\"You've requested too many requests.\")\r",
+									"    break\r",
+									"    default:\r",
+									"        pm.test(\"Unsuccessful to Create Playlist.\")\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\" : \"{{updateName}}\",\r\n    \"public\" : {{updateAvail}},\r\n    \"description\" : \"{{updateDes}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/playlists/{{LastPLid}}",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"playlists",
+								"{{LastPLid}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read_After_Update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Checked whether the response code is 200 or not!\", function () {\r",
+									"            pm.response.to.have.status(200)\r",
+									"    })\r",
+									"var resData = pm.response.json()\r",
+									"switch(pm.response.code){\r",
+									"    case 200:\r",
+									"            // To verify the reponse body\r",
+									"        pm.test(\"Checked whether response body contains data or not!\", function(){\r",
+									"            pm.expect(pm.response.text()).to.not.be.empty\r",
+									"        })\r",
+									"        // To verify response header\r",
+									"        pm.test(\"Checked whether response header has expected Content-type or not!\", function(){\r",
+									"            pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\")\r",
+									"        })\r",
+									"        pm.test(\"Checked whether the response size is less than 3KB or not!\", function(){\r",
+									"            pm.expect(pm.response.responseSize).to.be.below(3072)\r",
+									"        })\r",
+									"        pm.test(\"Checking whether 'Playlist Name' is updated as given input or not!\", function(){\r",
+									"            pm.expect(pm.environment.get(\"updateName\")).to.eql(resData.name)\r",
+									"            })\r",
+									"        pm.test(\"Checking whether 'Playlist Description' is updated as given input or not!\", function(){\r",
+									"            pm.expect(pm.environment.get(\"updateDes\")).to.eql(resData.description)\r",
+									"        })\r",
+									"        pm.test(\"Checking whether 'Playlist Public' is updated as given input or not!\", function(){\r",
+									"            var enValue = JSON.parse(pm.environment.get(\"updateAvail\"))\r",
+									"            pm.expect(enValue).to.eql(resData.public)\r",
+									"        })\r",
+									"        pm.test(\"Checked whether response time is less than 0.2s or not!\", function () {\r",
+									"            pm.expect(pm.response.responseTime).to.be.below(200)\r",
+									"        })\r",
+									"        var resTime = pm.response.responseTime / 1000\r",
+									"        pm.test(`The Response Time Was ${resTime} Seconds.`)\r",
+									"    break\r",
+									"    // Below cases are as per Spotify API Document    \r",
+									"    case 401:\r",
+									"        pm.test(\"The Access Token Has Expired.\")\r",
+									"    break\r",
+									"    case 403:\r",
+									"        pm.test(\"Server is refusing to fulfill your request.\")\r",
+									"    break\r",
+									"    case 429:\r",
+									"        pm.test(\"You've requested too many requests.\")\r",
+									"    break\r",
+									"    default:\r",
+									"        pm.test(\"Unsuccessful to fetch details of Spotify Playlists.\")\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// SPOTIFY API SHOWS \"ERROR\" WHILE MATCHING, CAUSE OF IMMEDIATE READ AFTER UPDATING DETAILS.\r",
+									"// DELAY 10 SECs TO EXECUTE AFTER BEING REQUEST.\r",
+									"setTimeout(function(){},10000)"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/playlists/{{LastPLid}}",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"playlists",
+								"{{LastPLid}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Tracks",
+			"item": [
+				{
+					"name": "Read_User's_Saved_Tracks",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Checked whether the response code is 200 or not!\", function () {\r",
+									"            pm.response.to.have.status(200)\r",
+									"    })\r",
+									"var data1 = [true, false];\r",
+									"var data2 = [true, 123];\r",
+									"\r",
+									"var len = pm.response.json()\r",
+									"var tracks = len.items.length\r",
+									"\r",
+									"switch(pm.response.code){\r",
+									"    case 200:\r",
+									"        // To verify the reponse body\r",
+									"        pm.test(\"Checked whether response body contains data or not!\", function(){\r",
+									"            pm.expect(pm.response.text()).to.not.be.empty\r",
+									"        })\r",
+									"        // To verify response header\r",
+									"        pm.test(\"Checked whether response header has expected Content-type or not!\", function(){\r",
+									"            pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\")\r",
+									"        })\r",
+									"        pm.test(\"Checked whether the response size is less than 3KB or not!\", function(){\r",
+									"            pm.expect(pm.response.responseSize).to.be.below(3072)\r",
+									"        })\r",
+									"        pm.test(\"Checked whether response time is less than 0.2s or not!\", function () {\r",
+									"            pm.expect(pm.response.responseTime).to.be.below(200)\r",
+									"        })\r",
+									"        pm.test(`Currently ${tracks} Tracks Available in Saved Section.`)\r",
+									"        var resTime = pm.response.responseTime / 1000\r",
+									"        pm.test(`The Response Time Was ${resTime} Seconds.`)\r",
+									"    break\r",
+									"    // Below cases are as per Spotify API Document\r",
+									"    case 401:\r",
+									"        pm.test(\"The Access Token Has Expired.\")\r",
+									"    break\r",
+									"    case 403:\r",
+									"        pm.test(\"Server is refusing to fulfill your request.\")\r",
+									"    break\r",
+									"    case 429:\r",
+									"        pm.test(\"You've requested too many requests.\")\r",
+									"    break\r",
+									"    default:\r",
+									"        pm.test(\"Unsuccessful to fetch details of Spotify Playlists.\")\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/me/tracks",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"me",
+								"tracks"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Save_Tracks_for_Current_User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Checked whether the response code is 200 or not!\", function () {\r",
+									"            pm.response.to.have.status(200)\r",
+									"    })\r",
+									"switch(pm.response.code){\r",
+									"    case 200:\r",
+									"        // To verify the reponse body\r",
+									"        pm.test(\"Checked whether response body contains data or not!\", function(){\r",
+									"            pm.expect(pm.response.text()).to.not.be.empty\r",
+									"        })\r",
+									"        // To verify response header\r",
+									"        pm.test(\"Checked whether response header has expected Content-type or not!\", function(){\r",
+									"            pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\")\r",
+									"        })\r",
+									"        pm.test(\"Checked whether the response size is less than 3KB or not!\", function(){\r",
+									"            pm.expect(pm.response.responseSize).to.be.below(3072)\r",
+									"        })\r",
+									"        pm.test(\"Checked whether response time is less than 0.2s or not!\", function () {\r",
+									"            pm.expect(pm.response.responseTime).to.be.below(200)\r",
+									"        })\r",
+									"        var resTime = pm.response.responseTime / 1000\r",
+									"        pm.test(`The Response Time Was ${resTime} Seconds.`)\r",
+									"    break\r",
+									"    // Below cases are as per Spotify API Document\r",
+									"    case 400:\r",
+									"        var error = pm.response.json().error.message\r",
+									"        pm.test(`Error! ${error}.`)\r",
+									"    break\r",
+									"    case 401:\r",
+									"        pm.test(\"The Access Token Has Expired.\")\r",
+									"    break\r",
+									"    case 403:\r",
+									"        pm.test(\"Server is refusing to fulfill your request.\")\r",
+									"    break\r",
+									"    case 429:\r",
+									"        pm.test(\"You've requested too many requests.\")\r",
+									"    break\r",
+									"    default:\r",
+									"        pm.test(\"Unsuccessful to fetch details of Spotify Playlists.\")\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var tracks = [\"2JzZzZUQj3Qff7wapcbKjc\",\"7npLlaPu9Mfno8hjk5OagD\",\"27tNWlhdAryQY04Gb2ZhUI\",\"27SdWb2rFzO6GWiYDBTD9j\",\"5Ravsw8TmHN5wBiYPPYUFw\",\"1KixkQVDUHggZMU9dUobgm\",\"0b11D9D0hMOYCIMN3OKreM\",\"4fkM7M4Uo5AUASnnsRC7EZ\",\"6FahmzZYKH0zb2f9hrVsvw\",\"1cPDOeVdALLjj4erFPiuqW\"]\r",
+									"var selTra = tracks[Math.floor(Math.random() * tracks.length)]\r",
+									"pm.environment.set(\"saveTrack\",selTra)"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"ids\" : [\"{{saveTrack}}\"]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/me/tracks",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"me",
+								"tracks"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read_After_Save_Track",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Checked whether the response code is 200 or not!\", function () {\r",
+									"            pm.response.to.have.status(200)\r",
+									"    })\r",
+									"switch(pm.response.code){\r",
+									"    case 200:\r",
+									"        // To verify the reponse body\r",
+									"        pm.test(\"Checked whether response body contains data or not!\", function(){\r",
+									"            pm.expect(pm.response.text()).to.not.be.empty\r",
+									"        })\r",
+									"        // To verify response header\r",
+									"        pm.test(\"Checked whether response header has expected Content-type or not!\", function(){\r",
+									"            pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\")\r",
+									"        })\r",
+									"        pm.test(\"Checked whether the response size is less than 3KB or not!\", function(){\r",
+									"            pm.expect(pm.response.responseSize).to.be.below(3072)\r",
+									"        })\r",
+									"        pm.test(\"Checked whether response time is less than 0.2s or not!\", function () {\r",
+									"            pm.expect(pm.response.responseTime).to.be.below(200)\r",
+									"        })\r",
+									"        var resBody = pm.response.json()\r",
+									"        var tracks = resBody.items.length\r",
+									"        let match = pm.environment.get(\"saveTrack\")\r",
+									"        let trackName = \"\"\r",
+									"\r",
+									"        resBody.items.forEach(shorten => {\r",
+									"            if(shorten.track.id == match){\r",
+									"                trackName = shorten.track.name\r",
+									"                }\r",
+									"            })\r",
+									"\r",
+									"        pm.test(`Recently, A Track with The Title of \"${trackName}\" is Added.`)\r",
+									"        pm.test(`Currently ${tracks} Tracks Available To Saved.`)\r",
+									"        var resTime = pm.response.responseTime / 1000\r",
+									"        pm.test(`The Response Time Was ${resTime} Seconds.`)\r",
+									"    break\r",
+									"    // Below cases are as per Spotify API Document\r",
+									"    case 401:\r",
+									"        pm.test(\"The Access Token Has Expired.\")\r",
+									"    break\r",
+									"    case 403:\r",
+									"        pm.test(\"Server is refusing to fulfill your request.\")\r",
+									"    break\r",
+									"    case 429:\r",
+									"        pm.test(\"You've requested too many requests.\")\r",
+									"    break\r",
+									"    default:\r",
+									"        pm.test(\"Unsuccessful to fetch details of Spotify Playlists.\")\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/me/tracks",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"me",
+								"tracks"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete_User's_Saved_Track",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Checked whether the response code is 200 or not!\", function () {\r",
+									"            pm.response.to.have.status(200)\r",
+									"    })\r",
+									"switch(pm.response.code){\r",
+									"    case 200:\r",
+									"        // To verify the reponse body\r",
+									"        pm.test(\"Checked whether response body contains data or not!\", function(){\r",
+									"            pm.expect(pm.response.text()).to.not.be.empty\r",
+									"        })\r",
+									"        // To verify response header\r",
+									"        pm.test(\"Checked whether response header has expected Content-type or not!\", function(){\r",
+									"            pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\")\r",
+									"        })\r",
+									"        pm.test(\"Checked whether the response size is less than 3KB or not!\", function(){\r",
+									"            pm.expect(pm.response.responseSize).to.be.below(3072)\r",
+									"        })\r",
+									"        pm.test(\"Checked whether response time is less than 0.2s or not!\", function () {\r",
+									"            pm.expect(pm.response.responseTime).to.be.below(200)\r",
+									"        })\r",
+									"        var resTime = pm.response.responseTime / 1000\r",
+									"        pm.test(`The Response Time Was ${resTime} Seconds.`)\r",
+									"    break\r",
+									"    // Below cases are as per Spotify API Document\r",
+									"    case 400:\r",
+									"        var error = pm.response.json().error.message\r",
+									"        pm.test(`Error! ${error}`)\r",
+									"    break\r",
+									"    case 401:\r",
+									"        pm.test(\"The Access Token Has Expired.\")\r",
+									"    break\r",
+									"    case 403:\r",
+									"        pm.test(\"Server is refusing to fulfill your request.\")\r",
+									"    break\r",
+									"    case 429:\r",
+									"        pm.test(\"You've requested too many requests.\")\r",
+									"    break\r",
+									"    default:\r",
+									"        pm.test(\"Unsuccessful to fetch details of Spotify Playlists.\")\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"ids\" : [\"{{saveTrack}}\"]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/me/tracks",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"me",
+								"tracks"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read_After_Delete_Track",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Checked whether the response code is 200 or not!\", function () {\r",
+									"            pm.response.to.have.status(200)\r",
+									"    })\r",
+									"var resBody = pm.response.json()\r",
+									"var tracks = resBody.items.length\r",
+									"switch(pm.response.code){\r",
+									"    case 200:\r",
+									"        // To verify the reponse body\r",
+									"        pm.test(\"Checked whether response body contains data or not!\", function(){\r",
+									"            pm.expect(pm.response.text()).to.not.be.empty\r",
+									"        })\r",
+									"        // To verify response header\r",
+									"        pm.test(\"Checked whether response header has expected Content-type or not!\", function(){\r",
+									"            pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\")\r",
+									"        })\r",
+									"        pm.test(\"Checked whether the response size is less than 3KB or not!\", function(){\r",
+									"            pm.expect(pm.response.responseSize).to.be.below(3072)\r",
+									"        })\r",
+									"        pm.test(\"Checked whether response time is less than 0.2s or not!\", function () {\r",
+									"            pm.expect(pm.response.responseTime).to.be.below(200)\r",
+									"        })\r",
+									"        let match = pm.environment.get(\"saveTrack\")\r",
+									"        var res = pm.response.text()\r",
+									"        if(!res.includes(match)){\r",
+									"            pm.test(\"The Track Not Found Cause of Being Deleted.\")\r",
+									"        }\r",
+									"        pm.test(`Currently ${tracks} Tracks Available To Saved.`)\r",
+									"\r",
+									"        var resTime = pm.response.responseTime / 1000\r",
+									"        pm.test(`The Response Time Was ${resTime} Seconds.`)\r",
+									"    break\r",
+									"    // Below cases are as per Spotify API Document\r",
+									"    case 401:\r",
+									"        pm.test(\"The Access Token Has Expired.\")\r",
+									"    break\r",
+									"    case 403:\r",
+									"        pm.test(\"Server is refusing to fulfill your request.\")\r",
+									"    break\r",
+									"    case 429:\r",
+									"        pm.test(\"You've requested too many requests.\")\r",
+									"    break\r",
+									"    default:\r",
+									"        pm.test(\"Unsuccessful to fetch details of Spotify Playlists.\")\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/me/tracks",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"me",
+								"tracks"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "oauth2",
+		"oauth2": [
+			{
+				"key": "tokenType",
+				"value": "Bearer",
+				"type": "string"
+			},
+			{
+				"key": "accessToken",
+				"value": "BQCpCn9etk-qE42per4-gYyV53D69a7CVFCMbFGb2e5L0lddkLmfwSnOHmSd3NodM0KS7pZFHbN-_-JrTwGwnGB3Ol5-dCyagBwPqInqqRa81Ma21huVz8cSK6VK7KGiDQsr3D3BpWmiXqnv6NEM1FCIaHz6m4Dcgh16QmrTtq308drF1q54rq2LswDPVWFmaYz7WsBjU3R0Ev7rZlbmGfEh56ngWSPZjJBk9CY6i0XejALSUEEs68TICNAAT6xLfbZOaBlTfeg2elbWuBijaG3eyodxrwE0aZfMJOTLEANHfLk5oEXU7w",
+				"type": "string"
+			},
+			{
+				"key": "state",
+				"value": "RFC-6749",
+				"type": "string"
+			},
+			{
+				"key": "refreshTokenUrl",
+				"value": "{{authURL}}/api/token",
+				"type": "string"
+			},
+			{
+				"key": "scope",
+				"value": "playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public user-follow-modify user-follow-read user-library-modify user-library-read",
+				"type": "string"
+			},
+			{
+				"key": "authUrl",
+				"value": "{{authURL}}/authorize",
+				"type": "string"
+			},
+			{
+				"key": "accessTokenUrl",
+				"value": "{{authURL}}/api/token",
+				"type": "string"
+			},
+			{
+				"key": "clientSecret",
+				"value": "{{client_secret}}",
+				"type": "string"
+			},
+			{
+				"key": "clientId",
+				"value": "{{client_id}}",
+				"type": "string"
+			},
+			{
+				"key": "useBrowser",
+				"value": true,
+				"type": "boolean"
+			},
+			{
+				"key": "addTokenTo",
+				"value": "header",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
