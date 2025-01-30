@@ -863,3 +863,5 @@ This project demonstrates the comprehensive testing of Spotify API endpoints usi
 # Screenshots
 ![image](https://github.com/user-attachments/assets/d38eab19-6977-46ca-b856-c52cf07ed28a)
 ![image](https://github.com/user-attachments/assets/df671903-b661-4563-ada6-eb34bb44c4f9)
+<center>![Spotify_API_Testing](https://github.com/user-attachments/assets/d43f45ac-ac8d-4054-821d-38f9a7f02b73)</center>
+
