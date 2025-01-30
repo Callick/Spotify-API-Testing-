@@ -861,7 +861,8 @@ Before using this project, ensure the following:
 ## Conclusion
 This project demonstrates the comprehensive testing of Spotify API endpoints using Postman and Newman. The tests cover various functionalities, ensuring the reliability and performance of the API. The detailed results provide insights into the API's behavior and performance metrics.
 # Screenshots
-![image](https://github.com/user-attachments/assets/d38eab19-6977-46ca-b856-c52cf07ed28a)
-![image](https://github.com/user-attachments/assets/df671903-b661-4563-ada6-eb34bb44c4f9)
-<center>![Spotify_API_Testing](https://github.com/user-attachments/assets/d43f45ac-ac8d-4054-821d-38f9a7f02b73)</center>
-
+![image](https://github.com/user-attachments/assets/d38eab19-6977-46ca-b856-c52cf07ed28a)  
+![image](https://github.com/user-attachments/assets/df671903-b661-4563-ada6-eb34bb44c4f9)  
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/d43f45ac-ac8d-4054-821d-38f9a7f02b73" alt="Thanks for Explore" style="width:50%; height:50%;">
+</div>
