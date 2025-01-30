@@ -864,5 +864,6 @@ This project demonstrates the comprehensive testing of Spotify API endpoints usi
 ![image](https://github.com/user-attachments/assets/d38eab19-6977-46ca-b856-c52cf07ed28a)  
 ![image](https://github.com/user-attachments/assets/df671903-b661-4563-ada6-eb34bb44c4f9)  
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/d43f45ac-ac8d-4054-821d-38f9a7f02b73" alt="Thanks for Explore" style="width:50%; height:50%;">
+  <img src="https://github.com/user-attachments/assets/d43f45ac-ac8d-4054-821d-38f9a7f02b73" alt="Thanks for Explore" style="width:50%; height:50%;"><br/>
+  <h2>END</h2>
 </div>
